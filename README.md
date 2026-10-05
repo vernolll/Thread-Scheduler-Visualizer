@@ -26,12 +26,12 @@ A C++ simulator and visualization tool for operating system thread scheduling al
 
 ```text
 thread-scheduler-visualizer/
-??? .github/
-?   ??? workflows/
-?       ??? ci.yml          # GitHub Actions CI pipeline
-??? docker/
-?   ??? Dockerfile          # Linux build environment container
-??? CMakeLists.txt          # Root CMake build configuration
-??? CMakePresets.json       # Standard CMake build presets
-??? LICENSE                 # License file
-??? README.md               # Project documentation
+├── .github/
+│   └── workflows/
+│       └── ci.yml          # GitHub Actions CI pipeline
+├── docker/
+│   └── Dockerfile          # Linux build environment container
+├── CMakeLists.txt          # Root CMake build configuration
+├── CMakePresets.json       # Standard CMake build presets
+├── LICENSE                 # License file
+└── README.md               # Project documentation
