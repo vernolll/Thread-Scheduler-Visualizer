@@ -18,6 +18,21 @@ find_package(Qt5 REQUIRED COMPONENTS
     Quick
 )
 
+add_library(core_lib
+    src/core/Thread.cpp
+    src/core/PCB.cpp
+)
+
+target_include_directories(core_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+add_executable(thread_scheduler_visualizer
+    src/main.cpp
+)
+
+target_link_libraries(thread_scheduler_visualizer PRIVATE core_lib)
+
 option(BUILD_TESTING "Build the testing suite" OFF)
 if(BUILD_TESTING)
     enable_testing()
