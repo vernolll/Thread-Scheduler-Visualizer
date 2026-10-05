@@ -1,0 +1,34 @@
+name: Check README Updates on Structure Change
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  check-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check file structure changes
+        run: |
+          ADDED_OR_REMOVED=$(git diff --name-only --diff-filter=AR origin/main...HEAD)
+
+          if [ -n "$ADDED_OR_REMOVED" ]; then
+            echo "Обнаружены изменения в структуре файлов (добавление или удаление):"
+            echo "$ADDED_OR_REMOVED"
+            
+            README_CHANGED=$(git diff --name-only origin/main...HEAD | grep -i "^README.md$" || true)
+
+            if [ -z "$README_CHANGED" ]; then
+              echo "::error::Структура файлов изменилась, но README.md не был обновлен! Пожалуйста, актуализируйте README.md."
+              exit 1
+            else
+              echo "README.md обновлен. Проверка пройдена успешно!"
+            fi
+          else
+            echo "Изменений в структуре файлов (добавления/удаления) не обнаружено."
+          fi
