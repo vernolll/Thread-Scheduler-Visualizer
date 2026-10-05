@@ -55,7 +55,6 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
-          modules: 'qtdeclarative'
           network-retries: 5
 
       - name: Configure CMake
