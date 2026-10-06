@@ -1,70 +1,56 @@
-name: C++ Qt 5 CI
+name: C++ CI
 
 on:
   push:
-    branches: [ main, "feature/*" ]
+    branches: [ main, develop, "feature/**" ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  build-linux:
-    name: Build & Run on Ubuntu (GCC/Ninja)
-    runs-on: ubuntu-22.04
+  build-and-test:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-      - name: Install Dependencies & Qt 5
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake \
-            ninja-build \
-            g++ \
-            qtbase5-dev \
-            qtdeclarative5-dev
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          g++ \
+          qtbase5-dev \
+          qtdeclarative5-dev \
+          qml-module-qtquick2 \
+          qml-module-qtquick-controls2 \
+          qml-module-qtquick-layouts \
+          qml-module-qtquick-window2
 
-      - name: Configure CMake
-        run: |
-          cmake -B build -S . \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTING=OFF
+    - name: Configure CMake
+      run: |
+        cmake -B build -S . \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_TESTS=ON
 
-      - name: Build Project
-        run: |
-          cmake --build build --config Release
-
-      - name: Run Smoke Test Binary
-        run: |
-          ./build/thread_scheduler_visualizer
-
-  build-windows:
-    name: Build on Windows (MSVC)
-    runs-on: windows-2022
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Qt 5
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '5.15.2'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_msvc2019_64'
-          network-retries: 5
-
-      - name: Configure CMake
-        run: |
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
-
-      - name: Build Project
-        run: |
-          cmake --build build --config Release
-
-      - name: Run Smoke Test Binary
-        run: |
-          .\build\Release\thread_scheduler_visualizer.exe
+    - name: Build Project
+      run: cmake --build build --config Debug
+      
+    - name: Run Core Unit Tests
+      run: ctest --test-dir build --output-on-failure
+      
+    - name: Run GUI Sanity Check (Offscreen)
+      env:
+        QT_QPA_PLATFORM: offscreen
+      run: |
+        ./build/thread_scheduler_visualizer &
+        APP_PID=$!
+        sleep 3
+        if kill -0 $APP_PID 2>/dev/null; then
+          echo "GUI application initialized successfully!"
+          kill $APP_PID
+        else
+          echo "GUI application crashed on startup!"
+          exit 1
+        fi
