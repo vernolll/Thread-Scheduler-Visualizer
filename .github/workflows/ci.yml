@@ -43,6 +43,8 @@ jobs:
     - name: Run GUI Sanity Check (Offscreen)
       env:
         QT_QPA_PLATFORM: offscreen
+        QT_QUICK_BACKEND: software
+        LIBGL_ALWAYS_SOFTWARE: "1"
       run: |
         ./build/thread_scheduler_visualizer &
         APP_PID=$!
