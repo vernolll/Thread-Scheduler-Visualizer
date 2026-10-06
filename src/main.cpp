@@ -1,44 +1,29 @@
-#include <iostream>
-#include <memory>
-#include "core/Thread.h"
-#include "core/RRScheduler.h"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include "gui/GUIController.h"
 
-int main() 
-{
-    std::cout << "=== Thread Scheduler Visualizer - Core Round Robin (Quantum = 2) Test ===" << std::endl;
+int main(int argc, char* argv[]) {
+    QGuiApplication app(argc, argv);
 
-    core::RRScheduler scheduler(2); // Quantum = 2 ticks
+    QQmlApplicationEngine engine;
 
-    auto t1 = std::make_shared<core::Thread>(1u, 4u, 1u); // Burst = 4
-    auto t2 = std::make_shared<core::Thread>(2u, 3u, 2u); // Burst = 3
-    auto t3 = std::make_shared<core::Thread>(3u, 2u, 3u); // Burst = 2
+    gui::GUIController guiController;
+    engine.rootContext()->setContextProperty("guiController", &guiController);
 
-    scheduler.addThread(t1);
-    scheduler.addThread(t2);
-    scheduler.addThread(t3);
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
 
-    std::cout << "\nStarting Round Robin Simulation Steps...\n" << std::endl;
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreated,
+        &app,
+        [url](QObject* obj, const QUrl& objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        },
+        Qt::QueuedConnection);
 
-    int tickCount = 0;
-    while (!scheduler.isFinished()) 
-    {
-        tickCount++;
-        scheduler.tick();
+    engine.load(url);
 
-        auto current = scheduler.getCurrentThread();
-        if (current) 
-        {
-            std::cout << "[Tick " << tickCount << "] Running Thread ID="
-                << current->id
-                << " | Remaining Time=" << current->remainingTime << std::endl;
-        }
-        else
-        {
-            std::cout << "[Tick " << tickCount << "] CPU Idle" << std::endl;
-        }
-    }
-
-    std::cout << "\nSimulation finished successfully in " << tickCount << " ticks!" << std::endl;
-
-    return 0;
+    return app.exec();
 }
