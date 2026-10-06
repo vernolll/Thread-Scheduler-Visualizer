@@ -32,6 +32,7 @@ add_executable(thread_scheduler_visualizer
     src/core/PCB.cpp
     src/core/Thread.cpp
     src/core/FCFSScheduler.cpp
+    src/core/RRScheduler.cpp
 )
 
 target_link_libraries(thread_scheduler_visualizer PRIVATE core_lib)
