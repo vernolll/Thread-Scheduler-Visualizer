@@ -32,14 +32,9 @@ namespace core
         ThreadState state{ ThreadState::NEW };
 
         Thread() = default;
-        Thread(uint32_t threadId, uint32_t pid, uint32_t prio, uint32_t arrival, uint32_t burst)
-            : id(threadId),
-            processId(pid),
-            priority(prio),
-            arrivalTime(arrival),
-            burstTime(burst),
-            remainingTime(burst),
-            state(ThreadState::NEW) 
+
+        Thread(uint32_t threadId, uint32_t burst, uint32_t prio = 0)
+            : id(threadId), burstTime(burst), priority(prio), remainingTime(burst), state(ThreadState::NEW) 
         {
         }
     };

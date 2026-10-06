@@ -22,26 +22,36 @@ A C++ simulator and visualization tool for operating system thread scheduling al
 
 ---
 
+## Documentation
+
+* [Glossary](GLOSSARY.md) — Definitions for core OS scheduling terminology, thread states, and architectural components.
+
+---
+
 ## Project Structure
 
 ```text
 thread-scheduler-visualizer/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml            # GitHub Actions CI pipeline
-│       └── readme-check.yml  # Auto-check README updates on structure changes
+│       ├── ci.yml          # GitHub Actions CI pipeline
+│       └── readme-check.yml # Auto-check README updates on structure changes
 ├── docker/
-│   └── Dockerfile            # Linux build environment container
+│   └── Dockerfile          # Linux build environment container
 ├── include/
 │   └── core/
-│       ├── PCB.h             # Process Control Block class interface
-│       └── Thread.h          # Thread structure & ThreadState enum
+│       ├── FCFSScheduler.h # First-Come, First-Served algorithm interface
+│       ├── PCB.h           # Process Control Block class interface
+│       ├── Scheduler.h     # Abstract base scheduler interface
+│       └── Thread.h        # Thread structure & ThreadState enum
 ├── src/
 │   ├── core/
-│   │   ├── PCB.cpp           # PCB implementation
-│   │   └── Thread.cpp        # Thread helpers implementation
-│   └── main.cpp              # Entry point / test runner
-├── CMakeLists.txt            # Root CMake build configuration
-├── CMakePresets.json         # Standard CMake build presets
-├── LICENSE                   # License file
-└── README.md                 # Project documentation
+│   │   ├── FCFSScheduler.cpp # FCFS algorithm implementation
+│   │   ├── PCB.cpp         # PCB implementation
+│   │   └── Thread.cpp      # Thread helpers implementation
+│   └── main.cpp            # Entry point / test runner
+├── CMakeLists.txt          # Root CMake build configuration
+├── CMakePresets.json        # Standard CMake build presets
+├── GLOSSARY.md             # Project domain glossary & technical definitions
+├── LICENSE                 # License file
+└── README.md               # Project documentation
