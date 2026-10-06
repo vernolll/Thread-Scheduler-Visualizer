@@ -29,6 +29,9 @@ target_include_directories(core_lib PUBLIC
 
 add_executable(thread_scheduler_visualizer
     src/main.cpp
+    src/core/PCB.cpp
+    src/core/Thread.cpp
+    src/core/FCFSScheduler.cpp
 )
 
 target_link_libraries(thread_scheduler_visualizer PRIVATE core_lib)
