@@ -52,6 +52,10 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.cpp      # Thread helpers implementation
 │   │   └── RRScheduler.cpp # Round Robin algorithm implementation
 │   └── main.cpp            # Entry point / test runner
+├── tests/
+│   └── unit/
+│       ├── test_fcfs_scheduler.cpp
+│       └── test_rr_scheduler.cpp	
 ├── CMakeLists.txt          # Root CMake build configuration
 ├── CMakePresets.json        # Standard CMake build presets
 ├── GLOSSARY.md             # Project domain glossary & technical definitions
