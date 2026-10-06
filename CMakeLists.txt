@@ -21,6 +21,8 @@ find_package(Qt5 REQUIRED COMPONENTS
 add_library(core_lib
     src/core/Thread.cpp
     src/core/PCB.cpp
+    src/core/FCFSScheduler.cpp
+    src/core/RRScheduler.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -29,16 +31,33 @@ target_include_directories(core_lib PUBLIC
 
 add_executable(thread_scheduler_visualizer
     src/main.cpp
-    src/core/PCB.cpp
-    src/core/Thread.cpp
-    src/core/FCFSScheduler.cpp
-    src/core/RRScheduler.cpp
 )
 
 target_link_libraries(thread_scheduler_visualizer PRIVATE core_lib)
 
-option(BUILD_TESTING "Build the testing suite" OFF)
-if(BUILD_TESTING)
+option(BUILD_TESTS "Build unit tests" ON)
+
+if(BUILD_TESTS)
     enable_testing()
-    add_subdirectory(tests)
+    include(FetchContent)
+    
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+
+    add_executable(tsv_core_tests
+        tests/unit/test_fcfs_scheduler.cpp
+        tests/unit/test_rr_scheduler.cpp
+    )
+
+    target_link_libraries(tsv_core_tests PRIVATE
+        core_lib
+        GTest::gtest_main
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(tsv_core_tests)
 endif()
