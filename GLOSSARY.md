@@ -42,6 +42,15 @@ The maximum continuous amount of execution time allocated to a thread before it 
 ### Preemption
 The act of temporarily interrupting an actively executing thread on the CPU without its cooperation to assign execution time to another thread.
 
+### Tick
+The fundamental unit of discrete simulation time. In each tick, the active scheduler advances the execution state of the currently running thread by decremental time steps.
+
+### Time Quantum (Time Slice)
+The maximum continuous amount of execution time (measured in ticks) allocated to a thread before it is preempted in Round Robin scheduling.
+
+### Round Robin (RR)
+A preemptive scheduling algorithm that assigns a fixed time quantum to each thread. Threads execute in a circular FIFO queue; if a thread's quantum expires before completion, it is preempted and moved to the back of the ready queue.
+
 ---
 
 ## Architecture & Frameworks

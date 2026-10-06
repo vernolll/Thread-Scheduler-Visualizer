@@ -43,12 +43,14 @@ thread-scheduler-visualizer/
 │       ├── FCFSScheduler.h # First-Come, First-Served algorithm interface
 │       ├── PCB.h           # Process Control Block class interface
 │       ├── Scheduler.h     # Abstract base scheduler interface
-│       └── Thread.h        # Thread structure & ThreadState enum
+│       ├── Thread.h        # Thread structure & ThreadState enum
+│       └── RRScheduler.h   # Round Robin algorithm interface
 ├── src/
 │   ├── core/
 │   │   ├── FCFSScheduler.cpp # FCFS algorithm implementation
 │   │   ├── PCB.cpp         # PCB implementation
-│   │   └── Thread.cpp      # Thread helpers implementation
+│   │   ├── Thread.cpp      # Thread helpers implementation
+│   │   └── RRScheduler.cpp # Round Robin algorithm implementation
 │   └── main.cpp            # Entry point / test runner
 ├── CMakeLists.txt          # Root CMake build configuration
 ├── CMakePresets.json        # Standard CMake build presets
