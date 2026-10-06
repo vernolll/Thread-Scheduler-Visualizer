@@ -39,19 +39,25 @@ thread-scheduler-visualizer/
 ├── docker/
 │   └── Dockerfile          # Linux build environment container
 ├── include/
-│   └── core/
-│       ├── FCFSScheduler.h # First-Come, First-Served algorithm interface
-│       ├── PCB.h           # Process Control Block class interface
-│       ├── Scheduler.h     # Abstract base scheduler interface
-│       ├── Thread.h        # Thread structure & ThreadState enum
-│       └── RRScheduler.h   # Round Robin algorithm interface
+│   ├── core/
+│   │   ├── FCFSScheduler.h # First-Come, First-Served algorithm interface
+│   │   ├── PCB.h           # Process Control Block class interface
+│   │   ├── Scheduler.h     # Abstract base scheduler interface
+│   │   ├── Thread.h        # Thread structure & ThreadState enum
+│   │   └── RRScheduler.h   # Round Robin algorithm interface
+│   └── gui/
+│       └── SchedulerViewModel.h # Qt/QML bridge & ViewModel interface
 ├── src/
 │   ├── core/
 │   │   ├── FCFSScheduler.cpp # FCFS algorithm implementation
 │   │   ├── PCB.cpp         # PCB implementation
 │   │   ├── Thread.cpp      # Thread helpers implementation
 │   │   └── RRScheduler.cpp # Round Robin algorithm implementation
-│   └── main.cpp            # Entry point / test runner
+│   ├── gui/
+│   │   └── SchedulerViewModel.cpp # ViewModel implementation & Qt bindings
+│   ├── main.cpp            # Entry point / Qt Application runner
+│   ├── qml.qrc     # Qt resource bundle for QML files
+│   └── main.qml    # Main application window & QML UI layout
 ├── tests/
 │   └── unit/
 │       ├── test_fcfs_scheduler.cpp

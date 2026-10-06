@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gdb \
     qtbase5-dev \
     qtdeclarative5-dev \
+    qml-module-qtquick2 \
+    qml-module-qtquick-controls2 \
+    qml-module-qtquick-layouts \
+    qml-module-qtquick-window2 \
     qtchooser \
     qt5-qmake \
     ca-certificates \
