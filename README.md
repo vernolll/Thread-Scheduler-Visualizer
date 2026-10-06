@@ -54,11 +54,10 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.cpp      # Thread helpers implementation
 │   │   └── RRScheduler.cpp # Round Robin algorithm implementation
 │   ├── gui/
-│   │   ├── SchedulerViewModel.cpp # ViewModel implementation & Qt bindings
-│   │   └── qml/
-│   │       ├── main.qml    # Main application window & QML UI layout
-│   │       └── qml.qrc     # Qt resource bundle for QML files
-│   └── main.cpp            # Entry point / Qt Application runner
+│   │   └── SchedulerViewModel.cpp # ViewModel implementation & Qt bindings
+│   ├── main.cpp            # Entry point / Qt Application runner
+│   ├── qml.qrc     # Qt resource bundle for QML files
+│   └── main.qml    # Main application window & QML UI layout
 ├── tests/
 │   └── unit/
 │       ├── test_fcfs_scheduler.cpp
