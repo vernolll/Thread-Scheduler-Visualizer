@@ -99,6 +99,70 @@ ApplicationWindow {
             }
         }
 
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 90
+            color: "#1e1e1e"
+            border.color: "#333333"
+            radius: 5
+            clip: true
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 5
+
+                Text {
+                    text: "Ready Queue (Waiting Threads)"
+                    color: "#ffffff"
+                    font.pixelSize: 14
+                    font.bold: true
+                }
+
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                    ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+
+                    Row {
+                        spacing: 8
+                        
+                        Repeater {
+                            model: guiController ? guiController.readyQueue : []
+
+                            Rectangle {
+                                width: 90
+                                height: 50
+                                color: "#2a2a2a"
+                                border.color: modelData.color
+                                border.width: 2
+                                radius: 4
+
+                                Column {
+                                    anchors.centerIn: parent
+                                    spacing: 2
+                                    Text {
+                                        text: "Thread " + modelData.id
+                                        color: "#ffffff"
+                                        font.bold: true
+                                        font.pixelSize: 11
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+                                    Text {
+                                        text: "Burst: " + modelData.burstTime
+                                        color: "#aaaaaa"
+                                        font.pixelSize: 10
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Visualization display area
        Rectangle {
             Layout.fillWidth: true
