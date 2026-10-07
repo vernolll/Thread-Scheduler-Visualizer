@@ -8,6 +8,10 @@ namespace gui
     GUIController::GUIController(QObject* parent) : QObject(parent)
     {
         m_scheduler = std::make_shared<core::FCFSScheduler>();
+
+        m_timer = new QTimer(this);
+        m_timer->setInterval(1000);
+        connect(m_timer, &QTimer::timeout, this, &GUIController::stepSimulation);
     }
 
     void GUIController::setCurrentScheduler(const QString& scheduler)
@@ -107,16 +111,24 @@ namespace gui
 
     void GUIController::startSimulation()
     {
-        m_isRunning = true;
-        emit isRunningChanged();
-        qDebug() << "Simulation started";
+        if (!m_isRunning)
+        {
+            m_isRunning = true;
+            m_timer->start();
+            emit isRunningChanged();
+            qDebug() << "Simulation started";
+        }
     }
 
     void GUIController::pauseSimulation()
     {
-        m_isRunning = false;
-        emit isRunningChanged();
-        qDebug() << "Simulation paused";
+        if (m_isRunning)
+        {
+            m_isRunning = false;
+            m_timer->stop();
+            emit isRunningChanged();
+            qDebug() << "Simulation paused";
+        }
     }
 
     void GUIController::stepSimulation()
@@ -153,8 +165,12 @@ namespace gui
     void GUIController::resetSimulation()
     {
         m_isRunning = false;
+        if (m_timer->isActive())
+        {
+            m_timer->stop();
+        }
         m_currentTime = 0;
-
+        m_nextThreadId = 0;
         m_ganttBlocks.clear();
 
         if (m_currentScheduler == "FCFS")
