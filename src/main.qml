@@ -79,7 +79,21 @@ ApplicationWindow {
                 anchors.fill: parent
 
                 Label { text: "ID:" }
-                SpinBox { id: threadIdInput; from: 1; to: 99; value: 1 }
+                SpinBox { 
+                    id: threadIdInput
+                    from: 1
+                    to: 99
+                    value: 1 
+
+                    Connections {
+                        target: guiController
+                        function onCurrentTimeChanged() {
+                            if (guiController.currentTime === 0) {
+                                threadIdInput.value = 1
+                            }
+                        }
+                    }
+                }
 
                 Label { text: "Burst Time:" }
                 SpinBox { id: burstTimeInput; from: 1; to: 20; value: 3 }
@@ -164,7 +178,7 @@ ApplicationWindow {
         }
 
         // Visualization display area
-       Rectangle {
+        Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: "#1e1e1e"
