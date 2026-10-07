@@ -17,6 +17,7 @@ namespace gui
             Q_PROPERTY(bool isRunning READ isRunning NOTIFY isRunningChanged)
             Q_PROPERTY(int timeQuantum READ timeQuantum WRITE setTimeQuantum NOTIFY timeQuantumChanged)
             Q_PROPERTY(QVariantList ganttBlocks READ ganttBlocks NOTIFY ganttBlocksChanged)
+            Q_PROPERTY(QVariantList readyQueue READ readyQueue NOTIFY readyQueueChanged)
             Q_PROPERTY(int currentTime READ currentTime NOTIFY currentTimeChanged)
 
     public:
@@ -30,6 +31,7 @@ namespace gui
         void setTimeQuantum(int quantum);
 
         QVariantList ganttBlocks() const { return m_ganttBlocks; }
+        QVariantList readyQueue() const { return m_readyQueue; }
         int currentTime() const { return m_currentTime; }
 
     public slots:
@@ -45,6 +47,7 @@ namespace gui
         void timeQuantumChanged();
         void simulationUpdated();
         void ganttBlocksChanged();
+        void readyQueueChanged();
         void currentTimeChanged();
 
     private:
@@ -53,8 +56,10 @@ namespace gui
         int m_timeQuantum{ 2 };
         int m_currentTime{ 0 };
         QVariantList m_ganttBlocks;
+        QVariantList m_readyQueue;
         std::shared_ptr<core::Scheduler> m_scheduler;
 
+        void updateReadyQueue();
         void appendGanttBlock(int threadId, const QString& name, int startTime, int duration, const QString& color);
     };
 }
