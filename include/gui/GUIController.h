@@ -5,6 +5,7 @@
 #include <QString>
 #include <QVariantList>
 #include <QVariantMap>
+#include <QTimer>
 #include <memory>
 #include "core/Scheduler.h"
 
@@ -23,6 +24,7 @@ namespace gui
 
     public:
         explicit GUIController(QObject* parent = nullptr);
+        ~GUIController() override = default;
 
         QString currentScheduler() const { return m_currentScheduler; }
         void setCurrentScheduler(const QString& scheduler);
@@ -63,6 +65,7 @@ namespace gui
         QVariantList m_readyQueue;
         QVariantList m_threadList;
         std::shared_ptr<core::Scheduler> m_scheduler;
+        QTimer* m_timer{ nullptr };
 
         void updateReadyQueue();
         void updateThreadList();
