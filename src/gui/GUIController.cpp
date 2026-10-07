@@ -60,31 +60,49 @@ namespace gui
         if (m_scheduler)
         {
             const auto& allThreads = m_scheduler->getAllThreads();
-            auto currentTh = m_scheduler->getCurrentThread();
+            static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
 
+            for (const auto& th : allThreads)
+            {
+                if (th && th->state == core::ThreadState::READY)
+                {
+                    QVariantMap item;
+                    item["id"] = static_cast<int>(th->id);
+                    item["burstTime"] = static_cast<int>(th->remainingTime);
+                    item["priority"] = static_cast<int>(th->priority);
+                    item["color"] = palette[th->id % palette.size()];
+                    m_readyQueue.append(item);
+                }
+            }
+        }
+        emit readyQueueChanged();
+    }
+
+    void GUIController::updateThreadList()
+    {
+        m_threadList.clear();
+        if (m_scheduler)
+        {
+            const auto& allThreads = m_scheduler->getAllThreads();
             static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
 
             for (const auto& th : allThreads)
             {
                 if (th)
                 {
-                    bool isRunning = (currentTh && currentTh->id == th->id);
-                    bool isReady = (th->state == core::ThreadState::READY) ||
-                        (!isRunning && th->remainingTime > 0);
+                    QVariantMap item;
+                    item["id"] = static_cast<int>(th->id);
+                    item["priority"] = static_cast<int>(th->priority);
+                    item["burstTime"] = static_cast<int>(th->burstTime);
+                    item["remainingTime"] = static_cast<int>(th->remainingTime);
+                    item["state"] = QString::fromStdString(core::toString(th->state));
+                    item["color"] = palette[th->id % palette.size()];
 
-                    if (isReady)
-                    {
-                        QVariantMap item;
-                        item["id"] = static_cast<int>(th->id);
-                        item["burstTime"] = static_cast<int>(th->remainingTime);
-                        item["priority"] = static_cast<int>(th->priority);
-                        item["color"] = palette[th->id % palette.size()];
-                        m_readyQueue.append(item);
-                    }
+                    m_threadList.append(item);
                 }
             }
         }
-        emit readyQueueChanged();
+        emit threadListChanged();
     }
 
     void GUIController::startSimulation()
@@ -124,7 +142,8 @@ namespace gui
             }
 
             m_currentTime++;
-            updateReadyQueue(); // Обновляем Ready Queue после тика
+            updateReadyQueue();
+            updateThreadList();
             emit currentTimeChanged();
             emit simulationUpdated();
             qDebug() << "Simulation step executed, time:" << m_currentTime;
@@ -135,6 +154,7 @@ namespace gui
     {
         m_isRunning = false;
         m_currentTime = 0;
+
         m_ganttBlocks.clear();
 
         if (m_currentScheduler == "FCFS")
@@ -147,6 +167,7 @@ namespace gui
         }
 
         updateReadyQueue();
+        updateThreadList();
         emit isRunningChanged();
         emit currentTimeChanged();
         emit ganttBlocksChanged();
@@ -164,7 +185,8 @@ namespace gui
                 static_cast<uint32_t>(priority)
             );
             m_scheduler->addThread(thread);
-            updateReadyQueue(); // Сразу отображаем добавленный поток
+            updateReadyQueue();
+            updateThreadList();
             emit simulationUpdated();
             qDebug() << "Added thread ID:" << id << "Burst:" << burstTime << "Priority:" << priority;
         }
