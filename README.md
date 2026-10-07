@@ -46,7 +46,7 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.h        # Thread structure & ThreadState enum
 │   │   └── RRScheduler.h   # Round Robin algorithm interface
 │   └── gui/
-│       └── SchedulerViewModel.h # Qt/QML bridge & ViewModel interface
+│       └── GUIController.h # Qt/QML bridge & ViewModel interface
 ├── src/
 │   ├── core/
 │   │   ├── FCFSScheduler.cpp # FCFS algorithm implementation
@@ -54,7 +54,7 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.cpp      # Thread helpers implementation
 │   │   └── RRScheduler.cpp # Round Robin algorithm implementation
 │   ├── gui/
-│   │   └── SchedulerViewModel.cpp # ViewModel implementation & Qt bindings
+│   │   └── GUIController.cpp # ViewModel implementation & Qt bindings
 │   ├── main.cpp            # Entry point / Qt Application runner
 │   ├── qml.qrc     # Qt resource bundle for QML files
 │   └── main.qml    # Main application window & QML UI layout
