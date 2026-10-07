@@ -100,29 +100,75 @@ ApplicationWindow {
         }
 
         // Visualization display area
-        Rectangle {
+       Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             color: "#1e1e1e"
             border.color: "#333333"
             radius: 5
+            clip: true
 
             ColumnLayout {
-                anchors.centerIn: parent
+                anchors.fill: parent
+                anchors.margins: 10
                 spacing: 10
 
-                Text {
-                    text: "Gantt Chart & Queue Visualization Placeholder"
-                    color: "#888888"
-                    font.pixelSize: 18
-                    font.bold: true
-                    anchors.horizontalCenter: parent.horizontalCenter
+                RowLayout {
+                    Layout.fillWidth: true
+                    Text {
+                        text: "Gantt Chart Execution Timeline"
+                        color: "#ffffff"
+                        font.pixelSize: 16
+                        font.bold: true
+                    }
+                    Item { Layout.fillWidth: true }
+                    Text {
+                        text: "Current Time: " + guiController.currentTime
+                        color: "#aaaaaa"
+                        font.pixelSize: 14
+                    }
                 }
-                Text {
-                    text: "Active Algorithm: " + guiController.currentScheduler
-                    color: "#aaaaaa"
-                    font.pixelSize: 14
-                    anchors.horizontalCenter: parent.horizontalCenter
+
+                ScrollView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOn
+                    ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+
+                    Row {
+                        id: ganttRow
+                        spacing: 2
+                        height: parent.height - 40
+
+                        Repeater {
+                            model: guiController.ganttBlocks
+
+                            Rectangle {
+                                width: modelData.duration * 40
+                                height: 70
+                                color: modelData.color
+                                radius: 4
+                                border.color: "#ffffff"
+                                border.width: 1
+
+                                Column {
+                                    anchors.centerIn: parent
+                                    Text {
+                                        text: modelData.name
+                                        color: "#ffffff"
+                                        font.bold: true
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+                                    Text {
+                                        text: "[" + modelData.startTime + " - " + (modelData.startTime + modelData.duration) + "]"
+                                        color: "#dddddd"
+                                        font.pixelSize: 10
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
