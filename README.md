@@ -34,36 +34,43 @@ A C++ simulator and visualization tool for operating system thread scheduling al
 thread-scheduler-visualizer/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml          # GitHub Actions CI pipeline
-│       └── readme-check.yml # Auto-check README updates on structure changes
+│       ├── ci.yml               # GitHub Actions CI pipeline
+│       └── readme-check.yml     # Auto-check README updates on structure changes
 ├── docker/
-│   └── Dockerfile          # Linux build environment container
+│   └── Dockerfile               # Linux build environment container
 ├── include/
 │   ├── core/
-│   │   ├── FCFSScheduler.h # First-Come, First-Served algorithm interface
-│   │   ├── PCB.h           # Process Control Block class interface
-│   │   ├── Scheduler.h     # Abstract base scheduler interface
-│   │   ├── Thread.h        # Thread structure & ThreadState enum
-│   │   └── RRScheduler.h   # Round Robin algorithm interface
+│   │   ├── FCFSScheduler.h      # First-Come, First-Served algorithm interface
+│   │   ├── PCB.h                # Process Control Block class interface
+│   │   ├── Scheduler.h          # Abstract base scheduler interface
+│   │   ├── Thread.h             # Thread structure & ThreadState enum
+│   │   └── RRScheduler.h        # Round Robin algorithm interface
 │   └── gui/
-│       └── GUIController.h # Qt/QML bridge & ViewModel interface
+│       └── GUIController.h      # Qt/QML bridge & ViewModel interface
+├── resources/
+│   ├── icons/
+│   │   ├── app_icon.ico         # Windows multi-resolution icon
+│   │   └── app_icon.svg         # Cross-platform vector icon source
+│   └──  app.rc					 # Qt resource file for icon mapping
 ├── src/
 │   ├── core/
-│   │   ├── FCFSScheduler.cpp # FCFS algorithm implementation
-│   │   ├── PCB.cpp         # PCB implementation
-│   │   ├── Thread.cpp      # Thread helpers implementation
-│   │   └── RRScheduler.cpp # Round Robin algorithm implementation
+│   │   ├── FCFSScheduler.cpp    # FCFS algorithm implementation
+│   │   ├── PCB.cpp              # PCB implementation
+│   │   ├── Thread.cpp           # Thread helpers implementation
+│   │   └── RRScheduler.cpp      # Round Robin algorithm implementation
 │   ├── gui/
-│   │   └── GUIController.cpp # ViewModel implementation & Qt bindings
-│   ├── main.cpp            # Entry point / Qt Application runner
-│   ├── qml.qrc     # Qt resource bundle for QML files
-│   └── main.qml    # Main application window & QML UI layout
+│   │   └── GUIController.cpp    # ViewModel implementation & Qt bindings
+│   ├── main.cpp                 # Entry point / Cross-platform icon loader
+│   ├── qml.qrc                  # Qt resource bundle for QML assets
+│   └── main.qml                 # Main application window & QML UI layout
 ├── tests/
 │   └── unit/
 │       ├── test_fcfs_scheduler.cpp
-│       └── test_rr_scheduler.cpp	
-├── CMakeLists.txt          # Root CMake build configuration
-├── CMakePresets.json        # Standard CMake build presets
-├── GLOSSARY.md             # Project domain glossary & technical definitions
-├── LICENSE                 # License file
-└── README.md               # Project documentation
+│       └── test_rr_scheduler.cpp    
+├── CMakeLists.txt               # Root CMake build configuration (with Qt6Svg)
+├── CMakePresets.json            # Standard CMake build presets
+├── GLOSSARY.md                  # Project domain glossary & technical definitions
+├── LICENSE                      # License file
+├── resources.qrc                # Qt resource bundle (icons mapping)
+├── .gitignore                   # Git ignore rules
+└── README.md                    # Project documentation
