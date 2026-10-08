@@ -8,7 +8,8 @@ namespace core
     {
     }
 
-    void ProcessControlBlock::addThread(const Thread& thread) {
+    void ProcessControlBlock::addThread(const Thread& thread) 
+    {
         threads_.push_back(thread);
     }
 
