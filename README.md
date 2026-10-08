@@ -38,12 +38,22 @@ Before building the project, ensure your system has the following dependencies i
 
 1. Clone the repository
 2. Configure the project with CMake:
-   cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+```psh
+cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+```
 3. Build the application:
+```psh
    cmake --build build --config Release
+```
 4. Run the executable:
-   * Windows: build\Release\thread_scheduler_visualizer.exe
-   * Linux: ./build/thread_scheduler_visualizer
+   * Windows: 
+    ``` psh
+    build\Release\thread_scheduler_visualizer.exe
+    ```
+   * Linux: 
+   ``` psh
+   ./build/thread_scheduler_visualizer
+   ```
 
 ---
 
@@ -52,7 +62,9 @@ Before building the project, ensure your system has the following dependencies i
 The project includes unit tests for core scheduling algorithms using GoogleTest. To run them:
 1. Build with tests enabled (-DBUILD_TESTS=ON).
 2. Execute tests via CTest:
+``` psh
    ctest --test-dir build --output-on-failure
+```
 
 ---
 
@@ -60,9 +72,13 @@ The project includes unit tests for core scheduling algorithms using GoogleTest.
 
 If you prefer an isolated Linux build environment:
 1. Build the Docker image:
-   docker build -f docker/Dockerfile -t thread-scheduler-img .
+``` psh
+docker build -f docker/Dockerfile -t thread-scheduler-img .
+```
 2. Run the container with volume mounting:
-   docker run -it --rm -v ${PWD}:/workspace thread-scheduler-img bash
+``` psh
+docker run -it --rm -v ${PWD}:/workspace thread-scheduler-img bash
+```
 
 ---
 
