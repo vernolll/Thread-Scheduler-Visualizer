@@ -101,7 +101,8 @@ thread-scheduler-visualizer/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml               # GitHub Actions CI pipeline
-│       └── readme-check.yml     # Auto-check README updates on structure changes
+│       ├── readme-check.yml     # Auto-check README updates on structure changes
+│       └── release.yml          # Automated release workflow
 ├── docker/
 │   └── Dockerfile               # Linux build environment container
 ├── include/
