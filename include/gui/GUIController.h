@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QString>
 #include <QVariantList>
-#include <QVariantMap>
 #include <QTimer>
 #include <memory>
 #include "core/Scheduler.h"

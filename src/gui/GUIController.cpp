@@ -1,7 +1,6 @@
 #include "gui/GUIController.h"
 #include "core/FCFSScheduler.h"
 #include "core/RRScheduler.h"
-#include <QDebug>
 
 namespace gui
 {
@@ -116,7 +115,6 @@ namespace gui
             m_isRunning = true;
             m_timer->start();
             emit isRunningChanged();
-            qDebug() << "Simulation started";
         }
     }
 
@@ -127,7 +125,6 @@ namespace gui
             m_isRunning = false;
             m_timer->stop();
             emit isRunningChanged();
-            qDebug() << "Simulation paused";
         }
     }
 
@@ -158,7 +155,6 @@ namespace gui
             updateThreadList();
             emit currentTimeChanged();
             emit simulationUpdated();
-            qDebug() << "Simulation step executed, time:" << m_currentTime;
         }
     }
 
@@ -188,7 +184,6 @@ namespace gui
         emit currentTimeChanged();
         emit ganttBlocksChanged();
         emit simulationUpdated();
-        qDebug() << "Simulation reset";
     }
 
     void GUIController::addThread(int id, int burstTime, int priority)
@@ -204,7 +199,6 @@ namespace gui
             updateReadyQueue();
             updateThreadList();
             emit simulationUpdated();
-            qDebug() << "Added thread ID:" << id << "Burst:" << burstTime << "Priority:" << priority;
         }
     }
 }
