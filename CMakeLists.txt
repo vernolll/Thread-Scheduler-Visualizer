@@ -38,7 +38,7 @@ else()
     set(APP_ICON_RESOURCE "")
 endif()
 
-add_executable(thread_scheduler_visualizer
+add_executable(thread_scheduler_visualizer WIN32
     src/main.cpp
     src/qml.qrc
     resources.qrc

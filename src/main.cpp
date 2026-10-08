@@ -16,11 +16,6 @@ int main(int argc, char* argv[])
     app.setWindowIcon(QIcon(":/resources/icons/app_icon.svg"));
 #endif
 
-    if (app.windowIcon().isNull()) 
-    {
-        qWarning() << "WARNING: Application icon failed to load!";
-    }
-
     QQmlApplicationEngine engine;
 
     gui::GUIController guiController;

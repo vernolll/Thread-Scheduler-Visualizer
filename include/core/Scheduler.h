@@ -4,7 +4,6 @@
 #include "core/Thread.h"
 #include <vector>
 #include <memory>
-#include <queue>
 
 namespace core 
 {
