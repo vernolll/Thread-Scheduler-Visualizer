@@ -113,6 +113,7 @@ ApplicationWindow {
             }
         }
 
+        // Ready Queue Panel
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 90
@@ -153,6 +154,16 @@ ApplicationWindow {
                                 border.width: 2
                                 radius: 4
 
+                                scale: hoverHandler.hovered ? 1.03 : 1.0
+                                Behavior on scale { NumberAnimation { duration: 150 } }
+
+                                HoverHandler {
+                                    id: hoverHandler
+                                }
+
+                                ToolTip.visible: hoverHandler.hovered
+                                ToolTip.text: "Thread T" + modelData.id + "\nPriority: " + modelData.priority + "\nBurst: " + modelData.burstTime
+
                                 Column {
                                     anchors.centerIn: parent
                                     spacing: 2
@@ -177,7 +188,7 @@ ApplicationWindow {
             }
         }
 
-        // Visualization display area
+        // Visualization display area (Gantt Chart)
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -224,10 +235,23 @@ ApplicationWindow {
                             Rectangle {
                                 width: modelData.duration * 40
                                 height: 70
-                                color: modelData.color
+                                color: hoverHandlerGantt.hovered ? Qt.lighter(modelData.color, 1.2) : modelData.color
                                 radius: 4
                                 border.color: "#ffffff"
                                 border.width: 1
+
+                                scale: 0.0
+                                Component.onCompleted: scale = 1.0
+                                Behavior on scale {
+                                    NumberAnimation { duration: 250; easing.type: Easing.OutBack }
+                                }
+
+                                HoverHandler {
+                                    id: hoverHandlerGantt
+                                }
+
+                                ToolTip.visible: hoverHandlerGantt.hovered
+                                ToolTip.text: "Execution Block: " + modelData.name + "\nInterval: [" + modelData.startTime + " - " + (modelData.startTime + modelData.duration) + "]"
 
                                 Column {
                                     anchors.centerIn: parent
@@ -251,6 +275,7 @@ ApplicationWindow {
             }
         }
 
+        // Status Table Panel
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 180
