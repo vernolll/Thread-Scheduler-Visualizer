@@ -8,7 +8,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
     include/gui/GUIController.h
@@ -29,11 +29,20 @@ target_link_libraries(core_lib PUBLIC
     Qt5::Gui
     Qt5::Qml
     Qt5::Quick
+    Qt5::Svg
 )
+
+if(WIN32)
+    set(APP_ICON_RESOURCE "resources/app.rc")
+else()
+    set(APP_ICON_RESOURCE "")
+endif()
 
 add_executable(thread_scheduler_visualizer
     src/main.cpp
     src/qml.qrc
+    resources.qrc
+    ${APP_ICON_RESOURCE}
 )
 
 target_link_libraries(thread_scheduler_visualizer PRIVATE
