@@ -30,7 +30,7 @@ Before building the project, ensure your system has the following dependencies i
 * C++ Compiler supporting C++17 (MSVC 2019+, GCC 11+, or Clang)
 * CMake (version 3.16 or higher)
 * Qt 5 development libraries
-  * On Ubuntu/Debian: sudo apt-get install build-essential cmake qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qml-module-qtquick2
+  * On Ubuntu/Debian: `sudo apt-get install build-essential cmake qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qml-module-qtquick2`
 
 ---
 
@@ -43,42 +43,58 @@ cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
 ```
 3. Build the application:
 ```psh
-   cmake --build build --config Release
+cmake --build build --config Release
 ```
 4. Run the executable:
    * Windows: 
-    ``` psh
-    build\Release\thread_scheduler_visualizer.exe
-    ```
+     ```psh
+     build\Release\thread_scheduler_visualizer.exe
+     ```
    * Linux: 
-   ``` psh
-   ./build/thread_scheduler_visualizer
-   ```
+     ```psh
+     ./build/thread_scheduler_visualizer
+     ```
 
 ---
 
 ## Running Tests
 
 The project includes unit tests for core scheduling algorithms using GoogleTest. To run them:
-1. Build with tests enabled (-DBUILD_TESTS=ON).
+1. Build with tests enabled (`-DBUILD_TESTS=ON`).
 2. Execute tests via CTest:
-``` psh
-   ctest --test-dir build --output-on-failure
+```psh
+ctest --test-dir build --output-on-failure
 ```
 
 ---
 
-## Dockerized Development (Linux)
+## Dockerized Development & Testing
 
-If you prefer an isolated Linux build environment:
-1. Build the Docker image:
-``` psh
-docker build -f docker/Dockerfile -t thread-scheduler-img .
+If you prefer an isolated environment or want to run automated tests and execute the GUI application via Docker:
+
+1. **Build the Docker image** (this will automatically compile the project and run all unit tests via CTest):
+```psh
+docker build --no-cache -t thread-scheduler-visualizer -f docker/Dockerfile .
 ```
-2. Run the container with volume mounting:
-``` psh
-docker run -it --rm -v ${PWD}:/workspace thread-scheduler-img bash
-```
+
+2. **Run the application with GUI support (X11 / XLaunch):**
+   * **On Windows** (make sure **XLaunch / VcXsrv** is running with *«Disable access control»* enabled):
+     ```psh
+     docker run --rm -it `
+       -e DISPLAY="host.docker.internal:0.0" `
+       -v /tmp/.X11-unix:/tmp/.X11-unix `
+       thread-scheduler-visualizer `
+       ./build/thread_scheduler_visualizer
+     ```
+   * **On Linux**:
+     ```bash
+     xhost +local:docker
+     docker run --rm -it \
+       -e DISPLAY=$DISPLAY \
+       -v /tmp/.X11-unix:/tmp/.X11-unix \
+       thread-scheduler-visualizer \
+       ./build/thread_scheduler_visualizer
+     ```
 
 ---
 
@@ -150,6 +166,7 @@ thread-scheduler-visualizer/
 │   └── main.qml                 # Main application window & QML UI layout
 ├── tests/
 │   └── unit/
+│       ├── TestThreadFSM.cpp
 │       ├── test_fcfs_scheduler.cpp
 │       └── test_rr_scheduler.cpp    
 ├── CMakeLists.txt               # Root CMake build configuration (with Qt6Svg)
@@ -159,3 +176,4 @@ thread-scheduler-visualizer/
 ├── resources.qrc                # Qt resource bundle (icons mapping)
 ├── .gitignore                   # Git ignore rules
 └── README.md                    # Project documentation
+```
