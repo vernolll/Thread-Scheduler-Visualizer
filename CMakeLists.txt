@@ -69,6 +69,7 @@ if(BUILD_TESTS)
     add_executable(tsv_core_tests
         tests/unit/test_fcfs_scheduler.cpp
         tests/unit/test_rr_scheduler.cpp
+        tests/unit/TestThreadFSM.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE

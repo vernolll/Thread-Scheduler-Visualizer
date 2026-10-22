@@ -1,3 +1,4 @@
+# (Предыдущие строки со скачиванием пакетов остаются без изменений)
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -21,5 +22,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt-get/lists/*
 
 WORKDIR /workspace
+
+COPY . /workspace
+
+RUN rm -rf build && \
+    cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -G Ninja && \
+    cmake --build build --config Release
+
+RUN cd build && ctest --output-on-failure
 
 CMD ["bash"]

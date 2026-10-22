@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <string>
 
-namespace core 
+namespace core
 {
-    enum class ThreadState 
+    enum class ThreadState
     {
         NEW,
         READY,
@@ -17,7 +17,9 @@ namespace core
 
     std::string toString(ThreadState state);
 
-    struct Thread 
+    bool isValidStateTransition(ThreadState from, ThreadState to);
+
+    struct Thread
     {
         uint32_t id{ 0 };
         uint32_t processId{ 0 };
@@ -34,8 +36,18 @@ namespace core
         Thread() = default;
 
         Thread(uint32_t threadId, uint32_t burst, uint32_t prio = 0)
-            : id(threadId), burstTime(burst), priority(prio), remainingTime(burst), state(ThreadState::NEW) 
+            : id(threadId), burstTime(burst), priority(prio), remainingTime(burst), state(ThreadState::NEW)
         {
+        }
+
+        bool setState(ThreadState newState)
+        {
+            if (isValidStateTransition(state, newState))
+            {
+                state = newState;
+                return true;
+            }
+            return false;
         }
     };
 
