@@ -102,6 +102,13 @@ namespace core
                     m_currentThread = nullptr;
                 }
             }
+
+            if (!m_currentThread && !m_readyQueue.empty())
+            {
+                m_currentThread = m_readyQueue.front();
+                m_readyQueue.pop();
+                m_currentThread->setState(ThreadState::RUNNING);
+            }
         }
     }
 

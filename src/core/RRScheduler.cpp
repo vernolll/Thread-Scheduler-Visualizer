@@ -125,6 +125,14 @@ namespace core
                 m_currentThread = nullptr;
                 m_currentQuantumTicks = 0;
             }
+
+            if (!m_currentThread && !m_readyQueue.empty())
+            {
+                m_currentThread = m_readyQueue.front();
+                m_readyQueue.pop();
+                m_currentThread->setState(ThreadState::RUNNING);
+                m_currentQuantumTicks = 0;
+            }
         }
     }
 
