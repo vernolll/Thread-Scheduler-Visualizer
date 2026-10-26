@@ -3,11 +3,12 @@
 
 #include "core/Scheduler.h"
 #include <queue>
+#include <vector>
 
-namespace core 
+namespace core
 {
 
-    class FCFSScheduler : public Scheduler 
+    class FCFSScheduler : public Scheduler
     {
     public:
         FCFSScheduler() = default;
@@ -18,9 +19,11 @@ namespace core
         std::shared_ptr<Thread> getCurrentThread() const override;
         bool isFinished() const override;
         const std::vector<std::shared_ptr<Thread>>& getAllThreads() const override;
+        const std::vector<std::shared_ptr<Thread>>& getWaitingThreads() const { return m_waitingThreads; }
 
     private:
         std::queue<std::shared_ptr<Thread>> m_readyQueue;
+        std::vector<std::shared_ptr<Thread>> m_waitingThreads;
         std::shared_ptr<Thread> m_currentThread{ nullptr };
     };
 }

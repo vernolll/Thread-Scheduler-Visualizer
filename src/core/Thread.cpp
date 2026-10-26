@@ -9,6 +9,7 @@ namespace core
         case ThreadState::NEW:        return "NEW";
         case ThreadState::READY:      return "READY";
         case ThreadState::RUNNING:    return "RUNNING";
+        case ThreadState::WAITING:    return "WAITING";
         case ThreadState::BLOCKED:    return "BLOCKED";
         case ThreadState::TERMINATED: return "TERMINATED";
         default:                      return "UNKNOWN";
@@ -28,7 +29,10 @@ namespace core
             return (to == ThreadState::RUNNING || to == ThreadState::TERMINATED);
 
         case ThreadState::RUNNING:
-            return (to == ThreadState::READY || to == ThreadState::BLOCKED || to == ThreadState::TERMINATED);
+            return (to == ThreadState::READY || to == ThreadState::WAITING || to == ThreadState::BLOCKED || to == ThreadState::TERMINATED);
+
+        case ThreadState::WAITING:
+            return (to == ThreadState::READY || to == ThreadState::TERMINATED);
 
         case ThreadState::BLOCKED:
             return (to == ThreadState::READY || to == ThreadState::TERMINATED);

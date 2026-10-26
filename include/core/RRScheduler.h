@@ -3,10 +3,11 @@
 
 #include "core/Scheduler.h"
 #include <queue>
+#include <vector>
 
-namespace core 
+namespace core
 {
-    class RRScheduler : public Scheduler 
+    class RRScheduler : public Scheduler
     {
     public:
         explicit RRScheduler(uint32_t timeQuantum = 2);
@@ -21,10 +22,13 @@ namespace core
         uint32_t getTimeQuantum() const { return m_timeQuantum; }
         void setTimeQuantum(uint32_t quantum) { m_timeQuantum = quantum; }
 
+        const std::vector<std::shared_ptr<Thread>>& getWaitingThreads() const { return m_waitingThreads; }
+
     private:
         uint32_t m_timeQuantum{ 2 };
         uint32_t m_currentQuantumTicks{ 0 };
         std::queue<std::shared_ptr<Thread>> m_readyQueue;
+        std::vector<std::shared_ptr<Thread>> m_waitingThreads;
         std::shared_ptr<Thread> m_currentThread{ nullptr };
     };
 }
