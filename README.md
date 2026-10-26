@@ -139,11 +139,13 @@ thread-scheduler-visualizer/
 │   └── Dockerfile               # Linux build environment container
 ├── include/
 │   ├── core/
+│   │   ├── EventLogger.h        # Event logging interface
 │   │   ├── FCFSScheduler.h      # First-Come, First-Served algorithm interface
 │   │   ├── PCB.h                # Process Control Block class interface
+│   │   ├── RRScheduler.h        # Round Robin algorithm interface
 │   │   ├── Scheduler.h          # Abstract base scheduler interface
-│   │   ├── Thread.h             # Thread structure & ThreadState enum
-│   │   └── RRScheduler.h        # Round Robin algorithm interface
+│   │   ├── SimulationEvent.h    # Simulation event structure & EventType enum
+│   │   └── Thread.h             # Thread structure & ThreadState enum
 │   └── gui/
 │       └── GUIController.h      # Qt/QML bridge & ViewModel interface
 ├── resources/
@@ -155,6 +157,7 @@ thread-scheduler-visualizer/
 │       └── screenshot.png       # Preview screenshot for README
 ├── src/
 │   ├── core/
+│   │   ├── EventLogger.cpp      # Event logging implementation
 │   │   ├── FCFSScheduler.cpp    # FCFS algorithm implementation
 │   │   ├── PCB.cpp              # PCB implementation
 │   │   ├── Thread.cpp           # Thread helpers implementation
@@ -167,6 +170,7 @@ thread-scheduler-visualizer/
 ├── tests/
 │   └── unit/
 │       ├── TestThreadFSM.cpp
+│       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
 │       └── test_rr_scheduler.cpp    
 ├── CMakeLists.txt               # Root CMake build configuration (with Qt6Svg)
