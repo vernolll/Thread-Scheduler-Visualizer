@@ -146,6 +146,7 @@ thread-scheduler-visualizer/
 │   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
 │   │   ├── MetricsCalculator.h    # Performance metrics calculation interface
 │   │   ├── PCB.h                  # Process Control Block class interface
+│   │   ├── PriorityScheduler.h    # Priority scheduling algorithm interface
 │   │   ├── RRScheduler.h          # Round Robin algorithm interface
 │   │   ├── Scheduler.h            # Abstract base scheduler interface
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
@@ -165,6 +166,7 @@ thread-scheduler-visualizer/
 │   │   ├── FCFSScheduler.cpp      # FCFS algorithm implementation
 │   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
 │   │   ├── PCB.cpp                # PCB implementation
+│   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
 │   │   ├── Thread.cpp             # Thread helpers implementation
 │   │   └── RRScheduler.cpp        # Round Robin algorithm implementation
 │   ├── gui/
@@ -178,6 +180,7 @@ thread-scheduler-visualizer/
 │       ├── test_context_switch.cpp
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
+│       ├── test_priority_scheduler.cpp
 │       └── test_rr_scheduler.cpp
 ├── CMakeLists.txt                 # Root CMake build configuration (with Qt6Svg)
 ├── CMakePresets.json              # Standard CMake build presets

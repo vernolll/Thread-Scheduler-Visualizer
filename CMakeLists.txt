@@ -19,6 +19,7 @@ add_library(core_lib STATIC
     src/core/RRScheduler.cpp
     src/core/EventLogger.cpp
     src/core/MetricsCalculator.cpp
+    src/core/PriorityScheduler.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -75,6 +76,7 @@ if(BUILD_TESTS)
         tests/unit/test_event_logger.cpp
         tests/unit/test_context_switch.cpp
         tests/unit/test_metrics_calculator.cpp
+        tests/unit/test_priority_scheduler.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
