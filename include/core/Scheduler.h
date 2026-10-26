@@ -8,36 +8,30 @@
 
 namespace core
 {
-    enum class AlgorithmType
-    {
-        FCFS,
-        ROUND_ROBIN,
-        PRIORITY
-    };
-
     class Scheduler
     {
     public:
         virtual ~Scheduler() = default;
 
         virtual void addThread(std::shared_ptr<Thread> thread) = 0;
-
         virtual void tick() = 0;
-
         virtual std::shared_ptr<Thread> getCurrentThread() const = 0;
-
         virtual bool isFinished() const = 0;
-
         virtual const std::vector<std::shared_ptr<Thread>>& getAllThreads() const = 0;
 
         const EventLogger& getEventLogger() const { return m_eventLogger; }
-
         uint64_t getCurrentTick() const { return m_currentTick; }
+
+        void setContextSwitchOverhead(uint32_t overhead) { m_contextSwitchOverhead = overhead; }
+        uint32_t getContextSwitchOverhead() const { return m_contextSwitchOverhead; }
 
     protected:
         std::vector<std::shared_ptr<Thread>> m_allThreads;
         EventLogger m_eventLogger;
         uint64_t m_currentTick{ 0 };
+
+        uint32_t m_contextSwitchOverhead{ 0 };
+        uint32_t m_remainingSwitchTicks{ 0 };
 
         void changeThreadState(std::shared_ptr<Thread>& thread, ThreadState newState, const std::string& reason = "")
         {

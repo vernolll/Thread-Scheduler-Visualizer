@@ -72,6 +72,7 @@ if(BUILD_TESTS)
         tests/unit/test_rr_scheduler.cpp
         tests/unit/TestThreadFSM.cpp
         tests/unit/test_event_logger.cpp
+        tests/unit/test_context_switch.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE

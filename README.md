@@ -170,6 +170,7 @@ thread-scheduler-visualizer/
 ├── tests/
 │   └── unit/
 │       ├── TestThreadFSM.cpp
+│       ├── test_context_switch.cpp
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
 │       └── test_rr_scheduler.cpp    

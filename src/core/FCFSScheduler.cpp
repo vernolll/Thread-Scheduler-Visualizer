@@ -32,12 +32,12 @@ namespace core
                             thread->currentBurstIndex++;
                             if (thread->currentBurstIndex < thread->ioBursts.size())
                             {
-                                thread->setState(ThreadState::READY);
+                                changeThreadState(thread, ThreadState::READY, "I/O burst finished, moved to READY");
                                 m_readyQueue.push(thread);
                             }
                             else
                             {
-                                thread->setState(ThreadState::TERMINATED);
+                                changeThreadState(thread, ThreadState::TERMINATED, "Thread finished");
                             }
                             it = m_waitingThreads.erase(it);
                             continue;
@@ -48,11 +48,23 @@ namespace core
             ++it;
         }
 
+        if (m_remainingSwitchTicks > 0)
+        {
+            m_remainingSwitchTicks--;
+            return;
+        }
+
         if (!m_currentThread && !m_readyQueue.empty())
         {
             m_currentThread = m_readyQueue.front();
             m_readyQueue.pop();
-            m_currentThread->setState(ThreadState::RUNNING);
+            changeThreadState(m_currentThread, ThreadState::RUNNING, "Scheduled on CPU");
+
+            if (m_contextSwitchOverhead > 0)
+            {
+                m_remainingSwitchTicks = m_contextSwitchOverhead;
+                return;
+            }
         }
 
         if (m_currentThread)
@@ -76,21 +88,26 @@ namespace core
                             auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
                             if (!nextBurst.isCpuBurst)
                             {
-                                m_currentThread->setState(ThreadState::WAITING);
+                                changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");
                                 m_waitingThreads.push_back(m_currentThread);
                                 m_currentThread = nullptr;
                             }
                             else
                             {
-                                m_currentThread->setState(ThreadState::READY);
+                                changeThreadState(m_currentThread, ThreadState::READY, "CPU burst finished, moved to READY");
                                 m_readyQueue.push(m_currentThread);
                                 m_currentThread = nullptr;
                             }
                         }
                         else
                         {
-                            m_currentThread->setState(ThreadState::TERMINATED);
+                            changeThreadState(m_currentThread, ThreadState::TERMINATED, "Thread completed");
                             m_currentThread = nullptr;
+                        }
+
+                        if (!m_currentThread && !m_readyQueue.empty() && m_contextSwitchOverhead > 0)
+                        {
+                            m_remainingSwitchTicks = m_contextSwitchOverhead;
                         }
                     }
                 }
@@ -100,16 +117,25 @@ namespace core
                 m_currentThread->remainingTime--;
                 if (m_currentThread->remainingTime == 0)
                 {
-                    m_currentThread->setState(ThreadState::TERMINATED);
+                    changeThreadState(m_currentThread, ThreadState::TERMINATED, "Thread completed");
                     m_currentThread = nullptr;
+
+                    if (!m_readyQueue.empty() && m_contextSwitchOverhead > 0)
+                    {
+                        m_remainingSwitchTicks = m_contextSwitchOverhead;
+                    }
                 }
             }
 
-            if (!m_currentThread && !m_readyQueue.empty())
+            if (!m_currentThread && !m_readyQueue.empty() && m_remainingSwitchTicks == 0)
             {
                 m_currentThread = m_readyQueue.front();
                 m_readyQueue.pop();
-                m_currentThread->setState(ThreadState::RUNNING);
+                changeThreadState(m_currentThread, ThreadState::RUNNING, "Scheduled on CPU");
+                if (m_contextSwitchOverhead > 0)
+                {
+                    m_remainingSwitchTicks = m_contextSwitchOverhead;
+                }
             }
         }
     }
