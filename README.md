@@ -128,57 +128,63 @@ Distributed under the MIT [License](LICENSE). See LICENSE for more information.
 
 ## Project Structure
 
+<details>
+<summary>Click to expand the project structure</summary>
+
 ```text
 thread-scheduler-visualizer/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml               # GitHub Actions CI pipeline
-│       ├── readme-check.yml     # Auto-check README updates on structure changes
-│       └── release.yml          # Automated release workflow
+│       ├── ci.yml                 # GitHub Actions CI pipeline
+│       ├── readme-check.yml       # Auto-check README updates on structure changes
+│       └── release.yml            # Automated release workflow
 ├── docker/
-│   └── Dockerfile               # Linux build environment container
+│   └── Dockerfile                 # Linux build environment container
 ├── include/
 │   ├── core/
-│   │   ├── EventLogger.h        # Event logging interface
-│   │   ├── FCFSScheduler.h      # First-Come, First-Served algorithm interface
-│   │   ├── PCB.h                # Process Control Block class interface
-│   │   ├── RRScheduler.h        # Round Robin algorithm interface
-│   │   ├── Scheduler.h          # Abstract base scheduler interface
-│   │   ├── SimulationEvent.h    # Simulation event structure & EventType enum
-│   │   └── Thread.h             # Thread structure & ThreadState enum
+│   │   ├── EventLogger.h          # Event logging interface
+│   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
+│   │   ├── MetricsCalculator.h    # Performance metrics calculation interface
+│   │   ├── PCB.h                  # Process Control Block class interface
+│   │   ├── RRScheduler.h          # Round Robin algorithm interface
+│   │   ├── Scheduler.h            # Abstract base scheduler interface
+│   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
+│   │   └── Thread.h               # Thread structure & ThreadState enum
 │   └── gui/
-│       └── GUIController.h      # Qt/QML bridge & ViewModel interface
+│       └── GUIController.h        # Qt/QML bridge & ViewModel interface
 ├── resources/
 │   ├── icons/
-│   │   ├── app_icon.ico         # Windows multi-resolution icon
-│   │   └── app_icon.svg         # Cross-platform vector icon source
-│   ├── app.rc					 # Qt resource file for icon mapping
+│   │   ├── app_icon.ico           # Windows multi-resolution icon
+│   │   └── app_icon.svg           # Cross-platform vector icon source
+│   ├── app.rc                     # Qt resource file for icon mapping
 │   └── preview/
-│       └── screenshot.png       # Preview screenshot for README
+│       └── screenshot.png         # Preview screenshot for README
 ├── src/
 │   ├── core/
-│   │   ├── EventLogger.cpp      # Event logging implementation
-│   │   ├── FCFSScheduler.cpp    # FCFS algorithm implementation
-│   │   ├── PCB.cpp              # PCB implementation
-│   │   ├── Thread.cpp           # Thread helpers implementation
-│   │   └── RRScheduler.cpp      # Round Robin algorithm implementation
+│   │   ├── EventLogger.cpp        # Event logging implementation
+│   │   ├── FCFSScheduler.cpp      # FCFS algorithm implementation
+│   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
+│   │   ├── PCB.cpp                # PCB implementation
+│   │   ├── Thread.cpp             # Thread helpers implementation
+│   │   └── RRScheduler.cpp        # Round Robin algorithm implementation
 │   ├── gui/
-│   │   └── GUIController.cpp    # ViewModel implementation & Qt bindings
-│   ├── main.cpp                 # Entry point / Cross-platform icon loader
-│   ├── qml.qrc                  # Qt resource bundle for QML assets
-│   └── main.qml                 # Main application window & QML UI layout
+│   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
+│   ├── main.cpp                   # Entry point / Cross-platform icon loader
+│   ├── qml.qrc                    # Qt resource bundle for QML assets
+│   └── main.qml                   # Main application window & QML UI layout
 ├── tests/
 │   └── unit/
 │       ├── TestThreadFSM.cpp
 │       ├── test_context_switch.cpp
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
-│       └── test_rr_scheduler.cpp    
-├── CMakeLists.txt               # Root CMake build configuration (with Qt6Svg)
-├── CMakePresets.json            # Standard CMake build presets
-├── GLOSSARY.md                  # Project domain glossary & technical definitions
-├── LICENSE                      # License file
-├── resources.qrc                # Qt resource bundle (icons mapping)
-├── .gitignore                   # Git ignore rules
-└── README.md                    # Project documentation
+│       └── test_rr_scheduler.cpp
+├── CMakeLists.txt                 # Root CMake build configuration (with Qt6Svg)
+├── CMakePresets.json              # Standard CMake build presets
+├── GLOSSARY.md                    # Project domain glossary & technical definitions
+├── LICENSE                        # License file
+├── resources.qrc                  # Qt resource bundle (icons mapping)
+├── .gitignore                     # Git ignore rules
+└── README.md                      # Project documentation
 ```
+</details>
