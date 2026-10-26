@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace core
 {
@@ -11,6 +12,7 @@ namespace core
         NEW,
         READY,
         RUNNING,
+        WAITING,
         BLOCKED,
         TERMINATED
     };
@@ -18,6 +20,13 @@ namespace core
     std::string toString(ThreadState state);
 
     bool isValidStateTransition(ThreadState from, ThreadState to);
+
+    struct BurstPhase
+    {
+        bool isCpuBurst{ true };
+        uint32_t duration{ 0 };
+        uint32_t remaining{ 0 };
+    };
 
     struct Thread
     {
@@ -33,11 +42,15 @@ namespace core
 
         ThreadState state{ ThreadState::NEW };
 
+        std::vector<BurstPhase> ioBursts;
+        size_t currentBurstIndex{ 0 };
+
         Thread() = default;
 
         Thread(uint32_t threadId, uint32_t burst, uint32_t prio = 0)
             : id(threadId), burstTime(burst), priority(prio), remainingTime(burst), state(ThreadState::NEW)
         {
+            ioBursts.push_back({ true, burst, burst });
         }
 
         bool setState(ThreadState newState)
@@ -48,6 +61,11 @@ namespace core
                 return true;
             }
             return false;
+        }
+
+        bool hasIoBurst() const
+        {
+            return currentBurstIndex < ioBursts.size() && !ioBursts[currentBurstIndex].isCpuBurst;
         }
     };
 
