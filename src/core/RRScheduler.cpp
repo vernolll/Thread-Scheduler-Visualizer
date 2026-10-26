@@ -18,6 +18,8 @@ namespace core
 
     void RRScheduler::tick()
     {
+        m_currentTick++;
+
         for (auto it = m_waitingThreads.begin(); it != m_waitingThreads.end(); )
         {
             auto thread = *it;
@@ -34,12 +36,12 @@ namespace core
                             thread->currentBurstIndex++;
                             if (thread->currentBurstIndex < thread->ioBursts.size())
                             {
-                                thread->setState(ThreadState::READY);
+                                changeThreadState(thread, ThreadState::READY, "I/O burst finished, moved to READY");
                                 m_readyQueue.push(thread);
                             }
                             else
                             {
-                                thread->setState(ThreadState::TERMINATED);
+                                changeThreadState(thread, ThreadState::TERMINATED, "Thread finished");
                             }
                             it = m_waitingThreads.erase(it);
                             continue;
@@ -50,17 +52,29 @@ namespace core
             ++it;
         }
 
+        if (m_remainingSwitchTicks > 0)
+        {
+            m_remainingSwitchTicks--;
+            return;
+        }
+
         if (!m_currentThread && !m_readyQueue.empty())
         {
             m_currentThread = m_readyQueue.front();
             m_readyQueue.pop();
-            m_currentThread->setState(ThreadState::RUNNING);
             m_currentQuantumTicks = 0;
+            changeThreadState(m_currentThread, ThreadState::RUNNING, "Scheduled on CPU (RR)");
+
+            if (m_contextSwitchOverhead > 0)
+            {
+                m_remainingSwitchTicks = m_contextSwitchOverhead;
+                return;
+            }
         }
 
         if (m_currentThread)
         {
-            bool burstFinished = false;
+            m_currentQuantumTicks++;
 
             if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
             {
@@ -68,7 +82,6 @@ namespace core
                 if (burst.isCpuBurst && burst.remaining > 0)
                 {
                     burst.remaining--;
-                    m_currentQuantumTicks++;
                     if (m_currentThread->remainingTime > 0)
                     {
                         m_currentThread->remainingTime--;
@@ -76,62 +89,80 @@ namespace core
 
                     if (burst.remaining == 0)
                     {
-                        burstFinished = true;
+                        m_currentThread->currentBurstIndex++;
+                        if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
+                        {
+                            auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
+                            if (!nextBurst.isCpuBurst)
+                            {
+                                changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");
+                                m_waitingThreads.push_back(m_currentThread);
+                                m_currentThread = nullptr;
+                            }
+                            else
+                            {
+                                changeThreadState(m_currentThread, ThreadState::READY, "CPU burst finished, moved to READY");
+                                m_readyQueue.push(m_currentThread);
+                                m_currentThread = nullptr;
+                            }
+                        }
+                        else
+                        {
+                            changeThreadState(m_currentThread, ThreadState::TERMINATED, "Thread completed");
+                            m_currentThread = nullptr;
+                        }
+
+                        if (!m_currentThread && !m_readyQueue.empty() && m_contextSwitchOverhead > 0)
+                        {
+                            m_remainingSwitchTicks = m_contextSwitchOverhead;
+                        }
                     }
                 }
             }
             else if (m_currentThread->remainingTime > 0)
             {
                 m_currentThread->remainingTime--;
-                m_currentQuantumTicks++;
                 if (m_currentThread->remainingTime == 0)
                 {
-                    burstFinished = true;
+                    changeThreadState(m_currentThread, ThreadState::TERMINATED, "Thread completed");
+                    m_currentThread = nullptr;
+
+                    if (!m_readyQueue.empty() && m_contextSwitchOverhead > 0)
+                    {
+                        m_remainingSwitchTicks = m_contextSwitchOverhead;
+                    }
                 }
             }
 
-            if (burstFinished || (m_currentThread->remainingTime == 0))
+            if (m_currentThread && m_currentQuantumTicks >= m_timeQuantum && m_currentThread->state == ThreadState::RUNNING)
             {
-                m_currentThread->currentBurstIndex++;
-                m_currentQuantumTicks = 0;
-
-                if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size() && m_currentThread->remainingTime > 0)
+                if (!m_readyQueue.empty())
                 {
-                    auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
-                    if (!nextBurst.isCpuBurst)
+                    changeThreadState(m_currentThread, ThreadState::READY, "Time quantum expired, moved to READY");
+                    m_readyQueue.push(m_currentThread);
+                    m_currentThread = nullptr;
+
+                    if (m_contextSwitchOverhead > 0)
                     {
-                        m_currentThread->setState(ThreadState::WAITING);
-                        m_waitingThreads.push_back(m_currentThread);
-                        m_currentThread = nullptr;
-                    }
-                    else
-                    {
-                        m_currentThread->setState(ThreadState::READY);
-                        m_readyQueue.push(m_currentThread);
-                        m_currentThread = nullptr;
+                        m_remainingSwitchTicks = m_contextSwitchOverhead;
                     }
                 }
                 else
                 {
-                    m_currentThread->setState(ThreadState::TERMINATED);
-                    m_currentThread = nullptr;
+                    m_currentQuantumTicks = 0;
                 }
             }
-            else if (m_currentQuantumTicks >= m_timeQuantum)
-            {
-                m_currentThread->setState(ThreadState::READY);
-                m_readyQueue.push(m_currentThread);
 
-                m_currentThread = nullptr;
-                m_currentQuantumTicks = 0;
-            }
-
-            if (!m_currentThread && !m_readyQueue.empty())
+            if (!m_currentThread && !m_readyQueue.empty() && m_remainingSwitchTicks == 0)
             {
                 m_currentThread = m_readyQueue.front();
                 m_readyQueue.pop();
-                m_currentThread->setState(ThreadState::RUNNING);
                 m_currentQuantumTicks = 0;
+                changeThreadState(m_currentThread, ThreadState::RUNNING, "Scheduled on CPU (RR)");
+                if (m_contextSwitchOverhead > 0)
+                {
+                    m_remainingSwitchTicks = m_contextSwitchOverhead;
+                }
             }
         }
     }
