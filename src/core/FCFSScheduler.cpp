@@ -14,6 +14,8 @@ namespace core
 
     void FCFSScheduler::tick()
     {
+        m_currentTick++;
+
         for (auto it = m_waitingThreads.begin(); it != m_waitingThreads.end(); )
         {
             auto thread = *it;

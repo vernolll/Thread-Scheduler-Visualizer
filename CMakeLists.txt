@@ -17,6 +17,7 @@ add_library(core_lib STATIC
     src/core/Thread.cpp
     src/core/FCFSScheduler.cpp
     src/core/RRScheduler.cpp
+    src/core/EventLogger.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -70,6 +71,7 @@ if(BUILD_TESTS)
         tests/unit/test_fcfs_scheduler.cpp
         tests/unit/test_rr_scheduler.cpp
         tests/unit/TestThreadFSM.cpp
+        tests/unit/test_event_logger.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
