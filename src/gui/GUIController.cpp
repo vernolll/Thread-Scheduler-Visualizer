@@ -8,6 +8,12 @@
 #include <QVBoxLayout>
 #include <QQmlContext>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
+#include <QTextStream>
+
 namespace gui
 {
     GUIController::GUIController(QObject* parent) : QObject(parent)
@@ -311,5 +317,136 @@ namespace gui
         updateThreadList();
         emit ganttBlocksChanged();
         emit simulationUpdated();
+    }
+
+    void GUIController::saveToJson(const QString& filePath)
+    {
+        QString path = filePath;
+        if (path.startsWith("file:///")) 
+        {
+            path = path.mid(8);
+        }
+        else if (path.startsWith("file://")) 
+        {
+            path = path.mid(7);
+        }
+
+        QJsonObject rootObj;
+        rootObj["scheduler"] = m_currentScheduler;
+        rootObj["timeQuantum"] = m_timeQuantum;
+
+        QJsonArray threadsArray;
+        if (m_scheduler)
+        {
+            for (const auto& th : m_scheduler->getAllThreads())
+            {
+                if (th) 
+                {
+                    QJsonObject thObj;
+                    thObj["id"] = static_cast<int>(th->id);
+                    thObj["burstTime"] = static_cast<int>(th->burstTime);
+                    thObj["priority"] = static_cast<int>(th->priority);
+                    threadsArray.append(thObj);
+                }
+            }
+        }
+        rootObj["threads"] = threadsArray;
+
+        QJsonDocument doc(rootObj);
+        QFile file(path);
+        if (file.open(QIODevice::WriteOnly))
+        {
+            file.write(doc.toJson());
+            file.close();
+        }
+    }
+
+    void GUIController::loadFromJson(const QString& filePath)
+    {
+        QString path = filePath;
+        if (path.startsWith("file:///"))
+        {
+            path = path.mid(8);
+        }
+        else if (path.startsWith("file://")) 
+        {
+            path = path.mid(7);
+        }
+
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            return;
+        }
+
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isNull() || !doc.isObject())
+        {
+            return;
+        }
+
+        QJsonObject rootObj = doc.object();
+
+        if (rootObj.contains("scheduler")) 
+        {
+            setCurrentScheduler(rootObj["scheduler"].toString());
+        }
+        if (rootObj.contains("timeQuantum")) 
+        {
+            setTimeQuantum(rootObj["timeQuantum"].toInt());
+        }
+
+        resetSimulation();
+
+        if (rootObj.contains("threads") && rootObj["threads"].isArray())
+        {
+            QJsonArray threadsArray = rootObj["threads"].toArray();
+            for (const auto& val : threadsArray) 
+            {
+                QJsonObject thObj = val.toObject();
+                int id = thObj["id"].toInt();
+                int burst = thObj["burstTime"].toInt();
+                int priority = thObj["priority"].toInt();
+                addThread(id, burst, priority);
+            }
+        }
+    }
+
+    void GUIController::exportCsv(const QString& filePath)
+    {
+        QString path = filePath;
+        if (path.startsWith("file:///")) 
+        {
+            path = path.mid(8);
+        }
+        else if (path.startsWith("file://")) 
+        {
+            path = path.mid(7);
+        }
+
+        QFile file(path);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) 
+        {
+            return;
+        }
+
+        QTextStream out(&file);
+        out << "Algorithm,TotalTicks,Throughput,ContextSwitches,JainsFairness,AvgWaiting,AvgTurnaround\n";
+
+        for (const auto& itemVar : m_benchmarkResults) {
+            QVariantMap item = itemVar.toMap();
+            out << item["schedulerName"].toString() << ","
+                << item["totalTicks"].toInt() << ","
+                << item["throughput"].toDouble() << ","
+                << item["contextSwitches"].toInt() << ","
+                << item["jainsFairness"].toDouble() << ","
+                << item["avgWaiting"].toDouble() << ","
+                << item["avgTurnaround"].toDouble() << "\n";
+        }
+
+        file.close();
     }
 }
