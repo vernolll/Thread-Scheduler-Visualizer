@@ -26,7 +26,14 @@ ApplicationWindow {
                 Label { text: "Algorithm:" }
                 ComboBox {
                     id: algoSelector
-                    model: ["FCFS", "Round Robin"]
+                    model: [
+                        "FCFS",
+                        "Round Robin",
+                        "Priority",
+                        "SJF",
+                        "SRTF",
+                        "MLFQ"
+                    ]
                     currentIndex: 0
                     onCurrentTextChanged: guiController.currentScheduler = currentText
                 }
