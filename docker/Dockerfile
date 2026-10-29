@@ -1,4 +1,3 @@
-# (Предыдущие строки со скачиванием пакетов остаются без изменений)
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qml-module-qtquick-controls2 \
     qml-module-qtquick-layouts \
     qml-module-qtquick-window2 \
+    qml-module-qtquick-dialogs \
     qtchooser \
     qt5-qmake \
     ca-certificates \
