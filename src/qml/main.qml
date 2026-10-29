@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
+import QtQuick.Dialogs 1.3
 
 ApplicationWindow {
     id: window
@@ -95,9 +96,9 @@ ApplicationWindow {
             }
         }
 
-        // Predefined Workload Scenarios Panel
+        // Predefined Workload Scenarios & IO Panel (Сюда добавили кнопки сохранения/экспорта)
         GroupBox {
-            title: "Predefined Workload Scenarios"
+            title: "Predefined Workload Scenarios & I/O"
             Layout.fillWidth: true
 
             RowLayout {
@@ -108,7 +109,7 @@ ApplicationWindow {
                 ComboBox {
                     id: scenarioSelector
                     model: guiController ? guiController.scenarioNames : []
-                    Layout.preferredWidth: 220
+                    Layout.preferredWidth: 180
                 }
 
                 Button {
@@ -118,6 +119,23 @@ ApplicationWindow {
                             guiController.loadScenario(scenarioSelector.currentIndex)
                         }
                     }
+                }
+
+                Item { width: 10 }
+
+                Button {
+                    text: "Save JSON"
+                    onClicked: saveJsonDialog.open()
+                }
+
+                Button {
+                    text: "Load JSON"
+                    onClicked: loadJsonDialog.open()
+                }
+
+                Button {
+                    text: "Export CSV"
+                    onClicked: exportCsvDialog.open()
                 }
 
                 Item { Layout.fillWidth: true }
@@ -442,6 +460,36 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+
+    FileDialog {
+        id: saveJsonDialog
+        title: "Save Workload Scenario"
+        selectExisting: false
+        nameFilters: ["JSON Files (*.json)"]
+        onAccepted: {
+            if (guiController) guiController.saveToJson(fileUrl)
+        }
+    }
+
+    FileDialog {
+        id: loadJsonDialog
+        title: "Load Workload Scenario"
+        selectExisting: true
+        nameFilters: ["JSON Files (*.json)"]
+        onAccepted: {
+            if (guiController) guiController.loadFromJson(fileUrl)
+        }
+    }
+
+    FileDialog {
+        id: exportCsvDialog
+        title: "Export Metrics to CSV"
+        selectExisting: false
+        nameFilters: ["CSV Files (*.csv)"]
+        onAccepted: {
+            if (guiController) guiController.exportCsv(fileUrl)
         }
     }
 

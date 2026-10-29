@@ -49,7 +49,11 @@ namespace gui
         void resetSimulation();
         void addThread(int id, int burstTime, int priority);
         void runAlgorithmBenchmark();
+
         Q_INVOKABLE void loadScenario(int index);
+        Q_INVOKABLE void saveToJson(const QString& filePath);
+        Q_INVOKABLE void loadFromJson(const QString& filePath);
+        Q_INVOKABLE void exportCsv(const QString& filePath);
 
     signals:
         void currentSchedulerChanged();
