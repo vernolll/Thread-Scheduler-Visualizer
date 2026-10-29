@@ -2,6 +2,10 @@
 #include "core/SchedulerFactory.h"
 #include "core/SchedulerTypes.h"
 #include "core/RRScheduler.h"
+#include "core/BenchmarkRunner.h"
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QQmlContext>
 
 namespace gui
 {
@@ -188,7 +192,9 @@ namespace gui
         m_nextThreadId = 0;
         m_ganttBlocks.clear();
 
-        // Пересоздаем планировщик под текущий выбранный тип через метод setCurrentScheduler
+        m_benchmarkResults.clear();
+        emit benchmarkResultsChanged();
+
         setCurrentScheduler(m_currentScheduler);
 
         updateReadyQueue();
@@ -213,5 +219,31 @@ namespace gui
             updateThreadList();
             emit simulationUpdated();
         }
+    }
+
+    void GUIController::runAlgorithmBenchmark()
+    {
+        if (!m_scheduler) return;
+
+        auto baselineThreads = m_scheduler->getAllThreads();
+        auto benchmarkResults = core::BenchmarkRunner::runBenchmark(baselineThreads);
+
+        m_benchmarkResults.clear();
+        for (const auto& res : benchmarkResults)
+        {
+            QVariantMap item;
+            item["schedulerName"] = QString::fromStdString(res.schedulerName);
+            item["totalTicks"] = static_cast<int>(res.totalTicks);
+            item["success"] = res.success;
+            item["throughput"] = res.metrics.throughput;
+            item["contextSwitches"] = static_cast<int>(res.metrics.contextSwitches);
+            item["jainsFairness"] = res.metrics.jainsFairnessIndex;
+            item["avgTurnaround"] = res.metrics.averageTurnaroundTime;
+            item["avgWaiting"] = res.metrics.averageWaitingTime;
+
+            m_benchmarkResults.append(item);
+        }
+
+        emit benchmarkResultsChanged();
     }
 }

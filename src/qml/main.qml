@@ -1,11 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 
 ApplicationWindow {
     id: window
     width: 1024
-    height: 700
+    height: 750
     visible: true
     title: "Thread Scheduler Visualizer"
 
@@ -35,7 +36,9 @@ ApplicationWindow {
                         "MLFQ"
                     ]
                     currentIndex: 0
-                    onCurrentTextChanged: guiController.currentScheduler = currentText
+                    onCurrentTextChanged: {
+                        if (guiController) guiController.currentScheduler = currentText
+                    }
                 }
 
                 Label { 
@@ -46,32 +49,48 @@ ApplicationWindow {
                     id: quantumSpinBox
                     from: 1
                     to: 10
-                    value: guiController.timeQuantum
+                    value: guiController ? guiController.timeQuantum : 1
                     visible: algoSelector.currentText === "Round Robin"
-                    onValueChanged: guiController.timeQuantum = value
+                    onValueChanged: {
+                        if (guiController) guiController.timeQuantum = value
+                    }
                 }
 
                 Item { Layout.fillWidth: true } // Spacer
 
                 Button {
-                    text: guiController.isRunning ? "Pause" : "Start"
+                    text: "Compare Algorithms"
                     onClicked: {
-                        if (guiController.isRunning)
-                            guiController.pauseSimulation()
-                        else
-                            guiController.startSimulation()
+                        if (guiController) guiController.runAlgorithmBenchmark()
+                        benchmarkWindow.open()
+                    }
+                }
+
+                Button {
+                    text: (guiController && guiController.isRunning) ? "Pause" : "Start"
+                    onClicked: {
+                        if (guiController) {
+                            if (guiController.isRunning)
+                                guiController.pauseSimulation()
+                            else
+                                guiController.startSimulation()
+                        }
                     }
                 }
 
                 Button {
                     text: "Step"
-                    enabled: !guiController.isRunning
-                    onClicked: guiController.stepSimulation()
+                    enabled: !(guiController && guiController.isRunning)
+                    onClicked: {
+                        if (guiController) guiController.stepSimulation()
+                    }
                 }
 
                 Button {
                     text: "Reset"
-                    onClicked: guiController.resetSimulation()
+                    onClicked: {
+                        if (guiController) guiController.resetSimulation()
+                    }
                 }
             }
         }
@@ -93,9 +112,9 @@ ApplicationWindow {
                     value: 1 
 
                     Connections {
-                        target: guiController
+                        target: guiController ? guiController : null
                         function onCurrentTimeChanged() {
-                            if (guiController.currentTime === 0) {
+                            if (guiController && guiController.currentTime === 0) {
                                 threadIdInput.value = 1
                             }
                         }
@@ -111,8 +130,10 @@ ApplicationWindow {
                 Button {
                     text: "Add Thread"
                     onClicked: {
-                        guiController.addThread(threadIdInput.value, burstTimeInput.value, priorityInput.value)
-                        threadIdInput.value = threadIdInput.value + 1
+                        if (guiController) {
+                            guiController.addThread(threadIdInput.value, burstTimeInput.value, priorityInput.value)
+                            threadIdInput.value = threadIdInput.value + 1
+                        }
                     }
                 }
 
@@ -219,7 +240,7 @@ ApplicationWindow {
                     }
                     Item { Layout.fillWidth: true }
                     Text {
-                        text: "Current Time: " + guiController.currentTime
+                        text: "Current Time: " + (guiController ? guiController.currentTime : 0)
                         color: "#aaaaaa"
                         font.pixelSize: 14
                     }
@@ -234,10 +255,9 @@ ApplicationWindow {
                     Row {
                         id: ganttRow
                         spacing: 2
-                        height: parent.height - 40
-
+                        
                         Repeater {
-                            model: guiController.ganttBlocks
+                            model: guiController ? guiController.ganttBlocks : []
 
                             Rectangle {
                                 width: modelData.duration * 40
@@ -394,5 +414,9 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    BenchmarkWindow {
+        id: benchmarkWindow
     }
 }

@@ -19,6 +19,7 @@ namespace gui
             Q_PROPERTY(QVariantList ganttBlocks READ ganttBlocks NOTIFY ganttBlocksChanged)
             Q_PROPERTY(QVariantList readyQueue READ readyQueue NOTIFY readyQueueChanged)
             Q_PROPERTY(QVariantList threadList READ threadList NOTIFY threadListChanged)
+            Q_PROPERTY(QVariantList benchmarkResults READ benchmarkResults NOTIFY benchmarkResultsChanged)
             Q_PROPERTY(int currentTime READ currentTime NOTIFY currentTimeChanged)
 
     public:
@@ -35,6 +36,7 @@ namespace gui
         QVariantList ganttBlocks() const { return m_ganttBlocks; }
         QVariantList readyQueue() const { return m_readyQueue; }
         QVariantList threadList() const { return m_threadList; }
+        QVariantList benchmarkResults() const { return m_benchmarkResults; }
         int currentTime() const { return m_currentTime; }
 
     public slots:
@@ -43,6 +45,7 @@ namespace gui
         void stepSimulation();
         void resetSimulation();
         void addThread(int id, int burstTime, int priority);
+        void runAlgorithmBenchmark();
 
     signals:
         void currentSchedulerChanged();
@@ -52,6 +55,7 @@ namespace gui
         void ganttBlocksChanged();
         void readyQueueChanged();
         void threadListChanged();
+        void benchmarkResultsChanged();
         void currentTimeChanged();
 
     private:
@@ -63,6 +67,7 @@ namespace gui
         QVariantList m_ganttBlocks;
         QVariantList m_readyQueue;
         QVariantList m_threadList;
+        QVariantList m_benchmarkResults;
         std::shared_ptr<core::Scheduler> m_scheduler;
         QTimer* m_timer{ nullptr };
 

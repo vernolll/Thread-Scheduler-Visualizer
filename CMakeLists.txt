@@ -24,6 +24,7 @@ add_library(core_lib STATIC
     src/core/SRTFScheduler.cpp
     src/core/SJFScheduler.cpp
     src/core/MLFQScheduler.cpp
+    src/core/BenchmarkRunner.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -85,6 +86,7 @@ if(BUILD_TESTS)
         tests/unit/test_sjf_srtf_scheduler.cpp
         tests/unit/test_mlfq_scheduler.cpp
         tests/unit/test_parameterized_schedulers.cpp
+        tests/unit/test_benchmark_runner.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
