@@ -1,6 +1,7 @@
 #include "core/MetricsCalculator.h"
 #include <numeric>
 #include <cmath>
+#include <algorithm>
 
 namespace core
 {
@@ -13,9 +14,7 @@ namespace core
         if (threads.empty()) return metrics;
 
         std::unordered_map<uint32_t, uint32_t> turnaroundMap;
-        std::unordered_map<uint32_t, uint32_t> waitingMap;
         std::unordered_map<uint32_t, uint32_t> responseMap;
-        std::unordered_map<uint32_t, uint64_t> lastReadyTimestamp;
         std::unordered_map<uint32_t, bool> firstRunRecorded;
 
         uint32_t contextSwitchesCount = 0;
@@ -24,11 +23,7 @@ namespace core
 
         for (const auto& event : events)
         {
-            if (event.newState == ThreadState::READY)
-            {
-                lastReadyTimestamp[event.threadId] = event.tick;
-            }
-            else if (event.newState == ThreadState::RUNNING)
+            if (event.newState == ThreadState::RUNNING)
             {
                 if (!firstRunRecorded[event.threadId])
                 {
@@ -60,16 +55,35 @@ namespace core
         double totalResponse = 0;
         size_t completedCount = 0;
 
-        std::vector<double> cpuAllocations;
-        cpuAllocations.reserve(threads.size());
+        std::vector<double> slowdownFactors;
+        slowdownFactors.reserve(threads.size());
 
         for (const auto& thread : threads)
         {
             ThreadMetrics tm;
             tm.threadId = thread->id;
-            tm.turnaroundTime = turnaroundMap.count(thread->id) ? turnaroundMap[thread->id] : 0;
-            tm.waitingTime = thread->waitingTime;
-            tm.responseTime = responseMap.count(thread->id) ? responseMap[thread->id] : 0;
+
+            uint32_t completionTick = turnaroundMap.count(thread->id) ? turnaroundMap[thread->id] : static_cast<uint32_t>(totalTicks);
+            if (completionTick >= thread->arrivalTime) 
+            {
+                tm.turnaroundTime = completionTick - thread->arrivalTime;
+            }
+            else 
+            {
+                tm.turnaroundTime = completionTick;
+            }
+
+            int calculatedWaiting = static_cast<int>(tm.turnaroundTime) - static_cast<int>(thread->burstTime);
+            tm.waitingTime = (calculatedWaiting > 0) ? static_cast<uint32_t>(calculatedWaiting) : 0U;
+
+            if (responseMap.count(thread->id)) {
+                uint32_t firstRunTick = responseMap[thread->id];
+                tm.responseTime = (firstRunTick >= thread->arrivalTime) ? (firstRunTick - thread->arrivalTime) : firstRunTick;
+            }
+            else 
+            {
+                tm.responseTime = 0;
+            }
 
             if (thread->state == ThreadState::TERMINATED || turnaroundMap.count(thread->id))
             {
@@ -81,7 +95,10 @@ namespace core
             totalResponse += tm.responseTime;
 
             metrics.perThreadMetrics.push_back(tm);
-            cpuAllocations.push_back(static_cast<double>(thread->burstTime));
+
+            double burst = thread->burstTime > 0 ? static_cast<double>(thread->burstTime) : 1.0;
+            double slowdown = static_cast<double>(tm.turnaroundTime) / burst;
+            slowdownFactors.push_back(slowdown > 0.0 ? (1.0 / slowdown) : 1.0);
         }
 
         size_t count = threads.size();
@@ -94,19 +111,19 @@ namespace core
             metrics.throughput = static_cast<double>(completedCount) / static_cast<double>(totalTicks);
         }
 
-        double sumAllocations = 0.0;
-        double sumSquaredAllocations = 0.0;
+        double sum = 0.0;
+        double sumSq = 0.0;
 
-        for (double x : cpuAllocations)
+        for (double val : slowdownFactors)
         {
-            sumAllocations += x;
-            sumSquaredAllocations += (x * x);
+            sum += val;
+            sumSq += (val * val);
         }
 
-        double n = static_cast<double>(cpuAllocations.size());
-        if (n > 0.0 && sumSquaredAllocations > 0.0)
+        double n = static_cast<double>(slowdownFactors.size());
+        if (n > 0.0 && sumSq > 0.0)
         {
-            metrics.jainsFairnessIndex = (sumAllocations * sumAllocations) / (n * sumSquaredAllocations);
+            metrics.jainsFairnessIndex = (sum * sum) / (n * sumSq);
         }
 
         return metrics;

@@ -142,6 +142,7 @@ thread-scheduler-visualizer/
 │   └── Dockerfile                 # Linux build environment container
 ├── include/
 │   ├── core/
+│   │   ├── BenchmarkRunner.h      # Benchmark runner interface for performance testing
 │   │   ├── EventLogger.h          # Event logging interface
 │   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
 │   │   ├── ISceduler.h            # Abstract scheduler interface for polymorphism
@@ -168,6 +169,7 @@ thread-scheduler-visualizer/
 │       └── screenshot.png         # Preview screenshot for README
 ├── src/
 │   ├── core/
+│   │   ├── BenchmarkRunner.cpp    # Benchmark runner implementation
 │   │   ├── EventLogger.cpp        # Event logging implementation
 │   │   ├── FCFSScheduler.cpp      # FCFS algorithm implementation
 │   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
@@ -181,12 +183,15 @@ thread-scheduler-visualizer/
 │   │   └── Thread.cpp             # Thread helpers implementation
 │   ├── gui/
 │   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
+│   ├── qml/
+│   │   ├── BenchmarkWindow.qml    # Benchmarking window & QML layout
+│   │   └── main.qml               # Main application window & QML UI layout
 │   ├── main.cpp                   # Entry point / Cross-platform icon loader
-│   ├── qml.qrc                    # Qt resource bundle for QML assets
-│   └── main.qml                   # Main application window & QML UI layout
+│   └── qml.qrc                    # Qt resource bundle for QML assets
 ├── tests/
 │   └── unit/
 │       ├── TestThreadFSM.cpp
+│       ├── test_benchmark_runner.cpp
 │       ├── test_context_switch.cpp
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp

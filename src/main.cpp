@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     gui::GUIController guiController;
     engine.rootContext()->setContextProperty("guiController", &guiController);
 
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
     QObject::connect(
         &engine,
