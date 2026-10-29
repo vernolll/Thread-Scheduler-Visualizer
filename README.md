@@ -157,7 +157,8 @@ thread-scheduler-visualizer/
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
 │   │   ├── SJFScheduler.h         # Shortest Job First algorithm interface
 │   │   ├── SRTFScheduler.h        # Shortest Remaining Time First algorithm interface
-│   │   └── Thread.h               # Thread structure & ThreadState enum
+│   │   ├── Thread.h               # Thread structure & ThreadState enum
+│   │   └── WorkloadScenario.h     # Workload scenario interface for testing
 │   └── gui/
 │       └── GUIController.h        # Qt/QML bridge & ViewModel interface
 ├── resources/
@@ -180,7 +181,8 @@ thread-scheduler-visualizer/
 │   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
 │   │   ├── SJFScheduler.cpp       # SJF algorithm implementation
 │   │   ├── SRTFScheduler.cpp      # SRTF algorithm implementation
-│   │   └── Thread.cpp             # Thread helpers implementation
+│   │   ├── Thread.cpp             # Thread helpers implementation
+│   │   └── WorkloadScenario.cpp   # Workload scenario implementation
 │   ├── gui/
 │   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
 │   ├── qml/

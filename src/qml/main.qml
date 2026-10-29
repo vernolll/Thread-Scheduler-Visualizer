@@ -95,6 +95,35 @@ ApplicationWindow {
             }
         }
 
+        // Predefined Workload Scenarios Panel
+        GroupBox {
+            title: "Predefined Workload Scenarios"
+            Layout.fillWidth: true
+
+            RowLayout {
+                spacing: 15
+                anchors.fill: parent
+
+                Label { text: "Scenario:" }
+                ComboBox {
+                    id: scenarioSelector
+                    model: guiController ? guiController.scenarioNames : []
+                    Layout.preferredWidth: 220
+                }
+
+                Button {
+                    text: "Load Scenario"
+                    onClicked: {
+                        if (guiController) {
+                            guiController.loadScenario(scenarioSelector.currentIndex)
+                        }
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+            }
+        }
+
         // The Flow Addition Panel
         GroupBox {
             title: "Add New Thread"

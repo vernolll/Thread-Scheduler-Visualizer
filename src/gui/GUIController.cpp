@@ -2,6 +2,7 @@
 #include "core/SchedulerFactory.h"
 #include "core/SchedulerTypes.h"
 #include "core/RRScheduler.h"
+#include "core/WorkloadScenario.h"
 #include "core/BenchmarkRunner.h"
 #include <QDialog>
 #include <QVBoxLayout>
@@ -195,7 +196,32 @@ namespace gui
         m_benchmarkResults.clear();
         emit benchmarkResultsChanged();
 
-        setCurrentScheduler(m_currentScheduler);
+        m_lastLoadedThreads.clear();
+
+        if (m_currentScheduler == "FCFS")
+        {
+            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
+        }
+        else if (m_currentScheduler == "Round Robin")
+        {
+            m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
+        }
+        else if (m_currentScheduler == "Priority")
+        {
+            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::Priority);
+        }
+        else if (m_currentScheduler == "SJF")
+        {
+            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SJF);
+        }
+        else if (m_currentScheduler == "SRTF")
+        {
+            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SRTF);
+        }
+        else if (m_currentScheduler == "MLFQ")
+        {
+            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::MLFQ);
+        }
 
         updateReadyQueue();
         updateThreadList();
@@ -209,6 +235,8 @@ namespace gui
     {
         if (m_scheduler)
         {
+            m_lastLoadedThreads.clear();
+
             auto thread = std::make_shared<core::Thread>(
                 static_cast<uint32_t>(id),
                 static_cast<uint32_t>(burstTime),
@@ -245,5 +273,43 @@ namespace gui
         }
 
         emit benchmarkResultsChanged();
+    }
+
+    QStringList GUIController::scenarioNames() const
+    {
+        QStringList list;
+        auto scenarios = core::WorkloadScenarioManager::getPredefinedScenarios();
+        for (const auto& s : scenarios)
+        {
+            list.append(QString::fromStdString(s.name));
+        }
+        return list;
+    }
+
+    void GUIController::loadScenario(int index)
+    {
+        auto scenarios = core::WorkloadScenarioManager::getPredefinedScenarios();
+        if (index < 0 || index >= static_cast<int>(scenarios.size()))
+            return;
+
+        resetSimulation();
+
+        const auto& scenario = scenarios[index];
+        m_lastLoadedThreads = scenario.threads;
+
+        for (const auto& t : scenario.threads)
+        {
+            auto thread = std::make_shared<core::Thread>(
+                static_cast<uint32_t>(t.id),
+                static_cast<uint32_t>(t.burstTime),
+                static_cast<uint32_t>(t.priority)
+            );
+            m_scheduler->addThread(thread);
+        }
+
+        updateReadyQueue();
+        updateThreadList();
+        emit ganttBlocksChanged();
+        emit simulationUpdated();
     }
 }
