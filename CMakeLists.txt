@@ -84,6 +84,7 @@ if(BUILD_TESTS)
         tests/unit/test_scheduler_factory.cpp
         tests/unit/test_sjf_srtf_scheduler.cpp
         tests/unit/test_mlfq_scheduler.cpp
+        tests/unit/test_parameterized_schedulers.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
