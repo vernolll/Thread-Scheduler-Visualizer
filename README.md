@@ -144,11 +144,14 @@ thread-scheduler-visualizer/
 │   ├── core/
 │   │   ├── EventLogger.h          # Event logging interface
 │   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
+│   │   ├── ISceduler.h            # Abstract scheduler interface for polymorphism
 │   │   ├── MetricsCalculator.h    # Performance metrics calculation interface
 │   │   ├── PCB.h                  # Process Control Block class interface
 │   │   ├── PriorityScheduler.h    # Priority scheduling algorithm interface
 │   │   ├── RRScheduler.h          # Round Robin algorithm interface
 │   │   ├── Scheduler.h            # Abstract base scheduler interface
+│   │   ├── SchedulerFactory.h     # Scheduler factory interface
+│   │   ├── ScedulerTypes.h        # Scheduler type enum & constants
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
 │   │   └── Thread.h               # Thread structure & ThreadState enum
 │   └── gui/
@@ -167,8 +170,9 @@ thread-scheduler-visualizer/
 │   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
 │   │   ├── PCB.cpp                # PCB implementation
 │   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
-│   │   ├── Thread.cpp             # Thread helpers implementation
-│   │   └── RRScheduler.cpp        # Round Robin algorithm implementation
+│   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
+│   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
+│   │   └── Thread.cpp             # Thread helpers implementation
 │   ├── gui/
 │   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
 │   ├── main.cpp                   # Entry point / Cross-platform icon loader
@@ -181,7 +185,8 @@ thread-scheduler-visualizer/
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
 │       ├── test_priority_scheduler.cpp
-│       └── test_rr_scheduler.cpp
+│       ├── test_rr_scheduler.cpp
+│       └── test_scheduler_factory.cpp
 ├── CMakeLists.txt                 # Root CMake build configuration (with Qt6Svg)
 ├── CMakePresets.json              # Standard CMake build presets
 ├── GLOSSARY.md                    # Project domain glossary & technical definitions
