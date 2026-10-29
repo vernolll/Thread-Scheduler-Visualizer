@@ -24,6 +24,9 @@ namespace core
         double averageWaitingTime{ 0.0 };
         double averageResponseTime{ 0.0 };
         double cpuUtilization{ 0.0 };
+        double throughput{ 0.0 };
+        uint32_t contextSwitches{ 0 };
+        double jainsFairnessIndex{ 1.0 };
     };
 
     class MetricsCalculator
