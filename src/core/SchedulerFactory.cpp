@@ -4,6 +4,7 @@
 #include "core/PriorityScheduler.h"
 #include "core/SJFScheduler.h"
 #include "core/SRTFScheduler.h"
+#include "core/MLFQScheduler.h"
 #include <stdexcept>
 
 namespace core
@@ -22,6 +23,8 @@ namespace core
             return std::make_unique<SJFScheduler>();
         case SchedulerType::SRTF:
             return std::make_unique<SRTFScheduler>();
+        case SchedulerType::MLFQ:
+            return std::make_unique<MLFQScheduler>(); // Добавляем обработку MLFQ
         default:
             throw std::invalid_argument("Unknown or unsupported scheduler type in factory");
         }

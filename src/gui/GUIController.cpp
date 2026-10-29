@@ -1,12 +1,13 @@
 #include "gui/GUIController.h"
-#include "core/FCFSScheduler.h"
+#include "core/SchedulerFactory.h"
+#include "core/SchedulerTypes.h"
 #include "core/RRScheduler.h"
 
 namespace gui
 {
     GUIController::GUIController(QObject* parent) : QObject(parent)
     {
-        m_scheduler = std::make_shared<core::FCFSScheduler>();
+        m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
 
         m_timer = new QTimer(this);
         m_timer->setInterval(1000);
@@ -18,14 +19,32 @@ namespace gui
         if (m_currentScheduler != scheduler)
         {
             m_currentScheduler = scheduler;
+
             if (m_currentScheduler == "FCFS")
             {
-                m_scheduler = std::make_shared<core::FCFSScheduler>();
+                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
             }
             else if (m_currentScheduler == "Round Robin")
             {
                 m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
             }
+            else if (m_currentScheduler == "Priority")
+            {
+                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::Priority);
+            }
+            else if (m_currentScheduler == "SJF")
+            {
+                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SJF);
+            }
+            else if (m_currentScheduler == "SRTF")
+            {
+                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SRTF);
+            }
+            else if (m_currentScheduler == "MLFQ")
+            {
+                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::MLFQ);
+            }
+
             emit currentSchedulerChanged();
             resetSimulation();
         }
@@ -169,14 +188,8 @@ namespace gui
         m_nextThreadId = 0;
         m_ganttBlocks.clear();
 
-        if (m_currentScheduler == "FCFS")
-        {
-            m_scheduler = std::make_shared<core::FCFSScheduler>();
-        }
-        else
-        {
-            m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-        }
+        // Пересоздаем планировщик под текущий выбранный тип через метод setCurrentScheduler
+        setCurrentScheduler(m_currentScheduler);
 
         updateReadyQueue();
         updateThreadList();

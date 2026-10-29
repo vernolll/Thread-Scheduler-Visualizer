@@ -146,6 +146,7 @@ thread-scheduler-visualizer/
 │   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
 │   │   ├── ISceduler.h            # Abstract scheduler interface for polymorphism
 │   │   ├── MetricsCalculator.h    # Performance metrics calculation interface
+│   │   ├── MLFQScheduler.h        # Multi-Level Feedback Queue algorithm interface
 │   │   ├── PCB.h                  # Process Control Block class interface
 │   │   ├── PriorityScheduler.h    # Priority scheduling algorithm interface
 │   │   ├── RRScheduler.h          # Round Robin algorithm interface
@@ -170,6 +171,7 @@ thread-scheduler-visualizer/
 │   │   ├── EventLogger.cpp        # Event logging implementation
 │   │   ├── FCFSScheduler.cpp      # FCFS algorithm implementation
 │   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
+│   │   ├── MLFQScheduler.cpp      # MLFQ algorithm implementation
 │   │   ├── PCB.cpp                # PCB implementation
 │   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
 │   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
@@ -188,6 +190,8 @@ thread-scheduler-visualizer/
 │       ├── test_context_switch.cpp
 │       ├── test_event_logger.cpp
 │       ├── test_fcfs_scheduler.cpp
+│       ├── test_metrics_calculator.cpp
+│       ├── test_mlfq_scheduler.cpp
 │       ├── test_priority_scheduler.cpp
 │       ├── test_rr_scheduler.cpp
 │       ├── test_scheduler_factory.cpp
