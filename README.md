@@ -192,6 +192,7 @@ thread-scheduler-visualizer/
 │       ├── test_fcfs_scheduler.cpp
 │       ├── test_metrics_calculator.cpp
 │       ├── test_mlfq_scheduler.cpp
+│       ├── test_parameterized_schedulers.cpp
 │       ├── test_priority_scheduler.cpp
 │       ├── test_rr_scheduler.cpp
 │       ├── test_scheduler_factory.cpp
