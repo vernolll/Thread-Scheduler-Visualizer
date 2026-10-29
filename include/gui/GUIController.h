@@ -6,7 +6,9 @@
 #include <QVariantList>
 #include <QTimer>
 #include <memory>
+#include <vector>
 #include "core/Scheduler.h"
+#include "core/WorkloadScenario.h"
 
 namespace gui
 {
@@ -21,6 +23,7 @@ namespace gui
             Q_PROPERTY(QVariantList threadList READ threadList NOTIFY threadListChanged)
             Q_PROPERTY(QVariantList benchmarkResults READ benchmarkResults NOTIFY benchmarkResultsChanged)
             Q_PROPERTY(int currentTime READ currentTime NOTIFY currentTimeChanged)
+            Q_PROPERTY(QStringList scenarioNames READ scenarioNames CONSTANT)
 
     public:
         explicit GUIController(QObject* parent = nullptr);
@@ -46,6 +49,7 @@ namespace gui
         void resetSimulation();
         void addThread(int id, int burstTime, int priority);
         void runAlgorithmBenchmark();
+        Q_INVOKABLE void loadScenario(int index);
 
     signals:
         void currentSchedulerChanged();
@@ -68,12 +72,14 @@ namespace gui
         QVariantList m_readyQueue;
         QVariantList m_threadList;
         QVariantList m_benchmarkResults;
+        std::vector<core::ScenarioThreadConfig> m_lastLoadedThreads; // Сохраненные потоки сценария
         std::shared_ptr<core::Scheduler> m_scheduler;
         QTimer* m_timer{ nullptr };
 
         void updateReadyQueue();
         void updateThreadList();
         void appendGanttBlock(int threadId, const QString& name, int startTime, int duration, const QString& color);
+        QStringList scenarioNames() const;
     };
 }
 

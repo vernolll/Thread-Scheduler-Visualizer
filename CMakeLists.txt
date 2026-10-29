@@ -25,6 +25,7 @@ add_library(core_lib STATIC
     src/core/SJFScheduler.cpp
     src/core/MLFQScheduler.cpp
     src/core/BenchmarkRunner.cpp
+    src/core/WorkloadScenario.cpp
 )
 
 target_include_directories(core_lib PUBLIC
