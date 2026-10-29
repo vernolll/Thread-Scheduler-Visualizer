@@ -153,6 +153,8 @@ thread-scheduler-visualizer/
 │   │   ├── SchedulerFactory.h     # Scheduler factory interface
 │   │   ├── ScedulerTypes.h        # Scheduler type enum & constants
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
+│   │   ├── SJFScheduler.h         # Shortest Job First algorithm interface
+│   │   ├── SRTFScheduler.h        # Shortest Remaining Time First algorithm interface
 │   │   └── Thread.h               # Thread structure & ThreadState enum
 │   └── gui/
 │       └── GUIController.h        # Qt/QML bridge & ViewModel interface
@@ -172,6 +174,8 @@ thread-scheduler-visualizer/
 │   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
 │   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
 │   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
+│   │   ├── SJFScheduler.cpp       # SJF algorithm implementation
+│   │   ├── SRTFScheduler.cpp      # SRTF algorithm implementation
 │   │   └── Thread.cpp             # Thread helpers implementation
 │   ├── gui/
 │   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
@@ -186,7 +190,8 @@ thread-scheduler-visualizer/
 │       ├── test_fcfs_scheduler.cpp
 │       ├── test_priority_scheduler.cpp
 │       ├── test_rr_scheduler.cpp
-│       └── test_scheduler_factory.cpp
+│       ├── test_scheduler_factory.cpp
+│       └── test_sjf_srtf_scheduler.cpp
 ├── CMakeLists.txt                 # Root CMake build configuration (with Qt6Svg)
 ├── CMakePresets.json              # Standard CMake build presets
 ├── GLOSSARY.md                    # Project domain glossary & technical definitions

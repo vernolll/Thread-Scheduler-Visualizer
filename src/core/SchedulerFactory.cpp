@@ -2,6 +2,8 @@
 #include "core/FCFSScheduler.h"
 #include "core/RRScheduler.h"
 #include "core/PriorityScheduler.h"
+#include "core/SJFScheduler.h"
+#include "core/SRTFScheduler.h"
 #include <stdexcept>
 
 namespace core
@@ -16,6 +18,10 @@ namespace core
             return std::make_unique<RRScheduler>();
         case SchedulerType::Priority:
             return std::make_unique<PriorityScheduler>();
+        case SchedulerType::SJF:
+            return std::make_unique<SJFScheduler>();
+        case SchedulerType::SRTF:
+            return std::make_unique<SRTFScheduler>();
         default:
             throw std::invalid_argument("Unknown or unsupported scheduler type in factory");
         }

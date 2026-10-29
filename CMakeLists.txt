@@ -21,6 +21,8 @@ add_library(core_lib STATIC
     src/core/MetricsCalculator.cpp
     src/core/PriorityScheduler.cpp
     src/core/SchedulerFactory.cpp
+    src/core/SRTFScheduler.cpp
+    src/core/SJFScheduler.cpp
 )
 
 target_include_directories(core_lib PUBLIC
@@ -79,6 +81,7 @@ if(BUILD_TESTS)
         tests/unit/test_metrics_calculator.cpp
         tests/unit/test_priority_scheduler.cpp
         tests/unit/test_scheduler_factory.cpp
+        tests/unit/test_sjf_srtf_scheduler.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
