@@ -153,7 +153,7 @@ thread-scheduler-visualizer/
 │   │   ├── RRScheduler.h          # Round Robin algorithm interface
 │   │   ├── Scheduler.h            # Abstract base scheduler interface
 │   │   ├── SchedulerFactory.h     # Scheduler factory interface
-│   │   ├── SimulationWorker.h     # Worker thread
+│   │   ├── SimulationWorker.h     # Worker thread interface for simulation execution
 │   │   ├── ScedulerTypes.h        # Scheduler type enum & constants
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
 │   │   ├── SJFScheduler.h         # Shortest Job First algorithm interface
@@ -180,7 +180,7 @@ thread-scheduler-visualizer/
 │   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
 │   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
 │   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
-│   │   ├── SimulationWorker.cpp   # Worker thread
+│   │   ├── SimulationWorker.cpp   # Worker thread implementation
 │   │   ├── SJFScheduler.cpp       # SJF algorithm implementation
 │   │   ├── SRTFScheduler.cpp      # SRTF algorithm implementation
 │   │   ├── Thread.cpp             # Thread helpers implementation
@@ -193,6 +193,8 @@ thread-scheduler-visualizer/
 │   ├── main.cpp                   # Entry point / Cross-platform icon loader
 │   └── qml.qrc                    # Qt resource bundle for QML assets
 ├── tests/
+│   ├── benchmarks/
+│   │   └── benchmark_schedulers.cpp
 │   └── unit/
 │       ├── TestThreadFSM.cpp
 │       ├── test_benchmark_runner.cpp
