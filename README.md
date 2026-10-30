@@ -153,6 +153,7 @@ thread-scheduler-visualizer/
 │   │   ├── RRScheduler.h          # Round Robin algorithm interface
 │   │   ├── Scheduler.h            # Abstract base scheduler interface
 │   │   ├── SchedulerFactory.h     # Scheduler factory interface
+│   │   ├── SimulationWorker.h     # Worker thread
 │   │   ├── ScedulerTypes.h        # Scheduler type enum & constants
 │   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
 │   │   ├── SJFScheduler.h         # Shortest Job First algorithm interface
@@ -179,6 +180,7 @@ thread-scheduler-visualizer/
 │   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
 │   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
 │   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
+│   │   ├── SimulationWorker.cpp   # Worker thread
 │   │   ├── SJFScheduler.cpp       # SJF algorithm implementation
 │   │   ├── SRTFScheduler.cpp      # SRTF algorithm implementation
 │   │   ├── Thread.cpp             # Thread helpers implementation
