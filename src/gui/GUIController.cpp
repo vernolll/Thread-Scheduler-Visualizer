@@ -1,13 +1,8 @@
 #include "gui/GUIController.h"
-#include "core/SchedulerFactory.h"
-#include "core/SchedulerTypes.h"
-#include "core/RRScheduler.h"
 #include "core/WorkloadScenario.h"
-#include "core/BenchmarkRunner.h"
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QQmlContext>
-
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -18,11 +13,37 @@ namespace gui
 {
     GUIController::GUIController(QObject* parent) : QObject(parent)
     {
-        m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
+        m_worker = new core::SimulationWorker();
+        m_worker->moveToThread(&m_workerThread);
+
+        connect(&m_workerThread, &QThread::finished, m_worker, &QObject::deleteLater);
+
+        connect(m_worker, &core::SimulationWorker::currentTimeChanged, this, &GUIController::onCurrentTimeChanged, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::isRunningChanged, this, &GUIController::onIsRunningChanged, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::readyQueueUpdated, this, &GUIController::onReadyQueueUpdated, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::threadListUpdated, this, &GUIController::onThreadListUpdated, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::ganttBlockAppended, this, &GUIController::onGanttBlockAppended, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::ganttBlocksCleared, this, &GUIController::onGanttBlocksCleared, Qt::QueuedConnection);
+        connect(m_worker, &core::SimulationWorker::benchmarkResultsUpdated, this, &GUIController::onBenchmarkResultsUpdated, Qt::QueuedConnection);
+
+        m_workerThread.start();
 
         m_timer = new QTimer(this);
         m_timer->setInterval(1000);
         connect(m_timer, &QTimer::timeout, this, &GUIController::stepSimulation);
+
+        QMetaObject::invokeMethod(m_worker, "setCurrentScheduler", Qt::QueuedConnection,
+            Q_ARG(QString, m_currentScheduler), Q_ARG(int, m_timeQuantum));
+    }
+
+    GUIController::~GUIController()
+    {
+        if (m_timer->isActive())
+        {
+            m_timer->stop();
+        }
+        m_workerThread.quit();
+        m_workerThread.wait();
     }
 
     void GUIController::setCurrentScheduler(const QString& scheduler)
@@ -30,34 +51,10 @@ namespace gui
         if (m_currentScheduler != scheduler)
         {
             m_currentScheduler = scheduler;
-
-            if (m_currentScheduler == "FCFS")
-            {
-                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
-            }
-            else if (m_currentScheduler == "Round Robin")
-            {
-                m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-            }
-            else if (m_currentScheduler == "Priority")
-            {
-                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::Priority);
-            }
-            else if (m_currentScheduler == "SJF")
-            {
-                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SJF);
-            }
-            else if (m_currentScheduler == "SRTF")
-            {
-                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SRTF);
-            }
-            else if (m_currentScheduler == "MLFQ")
-            {
-                m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::MLFQ);
-            }
-
             emit currentSchedulerChanged();
-            resetSimulation();
+
+            QMetaObject::invokeMethod(m_worker, "setCurrentScheduler", Qt::QueuedConnection,
+                Q_ARG(QString, m_currentScheduler), Q_ARG(int, m_timeQuantum));
         }
     }
 
@@ -66,85 +63,19 @@ namespace gui
         if (m_timeQuantum != quantum)
         {
             m_timeQuantum = quantum;
-            if (m_currentScheduler == "Round Robin")
-            {
-                m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-            }
             emit timeQuantumChanged();
+
+            QMetaObject::invokeMethod(m_worker, "setTimeQuantum", Qt::QueuedConnection,
+                Q_ARG(int, m_timeQuantum));
         }
-    }
-
-    void GUIController::appendGanttBlock(int threadId, const QString& name, int startTime, int duration, const QString& color)
-    {
-        QVariantMap block;
-        block["threadId"] = threadId;
-        block["name"] = name;
-        block["startTime"] = startTime;
-        block["duration"] = duration;
-        block["color"] = color;
-
-        m_ganttBlocks.append(block);
-        emit ganttBlocksChanged();
-    }
-
-    void GUIController::updateReadyQueue()
-    {
-        m_readyQueue.clear();
-        if (m_scheduler)
-        {
-            const auto& allThreads = m_scheduler->getAllThreads();
-            static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-
-            for (const auto& th : allThreads)
-            {
-                if (th && th->state == core::ThreadState::READY)
-                {
-                    QVariantMap item;
-                    item["id"] = static_cast<int>(th->id);
-                    item["burstTime"] = static_cast<int>(th->remainingTime);
-                    item["priority"] = static_cast<int>(th->priority);
-                    item["color"] = palette[th->id % palette.size()];
-                    m_readyQueue.append(item);
-                }
-            }
-        }
-        emit readyQueueChanged();
-    }
-
-    void GUIController::updateThreadList()
-    {
-        m_threadList.clear();
-        if (m_scheduler)
-        {
-            const auto& allThreads = m_scheduler->getAllThreads();
-            static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-
-            for (const auto& th : allThreads)
-            {
-                if (th)
-                {
-                    QVariantMap item;
-                    item["id"] = static_cast<int>(th->id);
-                    item["priority"] = static_cast<int>(th->priority);
-                    item["burstTime"] = static_cast<int>(th->burstTime);
-                    item["remainingTime"] = static_cast<int>(th->remainingTime);
-                    item["state"] = QString::fromStdString(core::toString(th->state));
-                    item["color"] = palette[th->id % palette.size()];
-
-                    m_threadList.append(item);
-                }
-            }
-        }
-        emit threadListChanged();
     }
 
     void GUIController::startSimulation()
     {
         if (!m_isRunning)
         {
-            m_isRunning = true;
             m_timer->start();
-            emit isRunningChanged();
+            QMetaObject::invokeMethod(m_worker, "startSimulation", Qt::QueuedConnection);
         }
     }
 
@@ -152,133 +83,38 @@ namespace gui
     {
         if (m_isRunning)
         {
-            m_isRunning = false;
             m_timer->stop();
-            emit isRunningChanged();
+            QMetaObject::invokeMethod(m_worker, "pauseSimulation", Qt::QueuedConnection);
         }
     }
 
     void GUIController::stepSimulation()
     {
-        if (m_scheduler)
-        {
-            m_scheduler->tick();
-
-            auto activeThread = m_scheduler->getCurrentThread();
-            if (activeThread)
-            {
-                static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-                uint32_t threadId = activeThread->id;
-                QString color = palette[threadId % palette.size()];
-
-                appendGanttBlock(
-                    static_cast<int>(threadId),
-                    QString("T%1").arg(threadId),
-                    m_currentTime,
-                    1,
-                    color
-                );
-            }
-
-            m_currentTime++;
-            updateReadyQueue();
-            updateThreadList();
-            emit currentTimeChanged();
-            emit simulationUpdated();
-        }
+        QMetaObject::invokeMethod(m_worker, "stepSimulation", Qt::QueuedConnection);
     }
 
     void GUIController::resetSimulation()
     {
-        m_isRunning = false;
         if (m_timer->isActive())
         {
             m_timer->stop();
         }
-        m_currentTime = 0;
         m_nextThreadId = 0;
-        m_ganttBlocks.clear();
-
-        m_benchmarkResults.clear();
-        emit benchmarkResultsChanged();
-
         m_lastLoadedThreads.clear();
 
-        if (m_currentScheduler == "FCFS")
-        {
-            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::FCFS);
-        }
-        else if (m_currentScheduler == "Round Robin")
-        {
-            m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-        }
-        else if (m_currentScheduler == "Priority")
-        {
-            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::Priority);
-        }
-        else if (m_currentScheduler == "SJF")
-        {
-            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SJF);
-        }
-        else if (m_currentScheduler == "SRTF")
-        {
-            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::SRTF);
-        }
-        else if (m_currentScheduler == "MLFQ")
-        {
-            m_scheduler = core::SchedulerFactory::createScheduler(core::SchedulerType::MLFQ);
-        }
-
-        updateReadyQueue();
-        updateThreadList();
-        emit isRunningChanged();
-        emit currentTimeChanged();
-        emit ganttBlocksChanged();
-        emit simulationUpdated();
+        QMetaObject::invokeMethod(m_worker, "resetSimulation", Qt::QueuedConnection);
     }
 
     void GUIController::addThread(int id, int burstTime, int priority)
     {
-        if (m_scheduler)
-        {
-            m_lastLoadedThreads.clear();
-
-            auto thread = std::make_shared<core::Thread>(
-                static_cast<uint32_t>(id),
-                static_cast<uint32_t>(burstTime),
-                static_cast<uint32_t>(priority)
-            );
-            m_scheduler->addThread(thread);
-            updateReadyQueue();
-            updateThreadList();
-            emit simulationUpdated();
-        }
+        m_lastLoadedThreads.clear();
+        QMetaObject::invokeMethod(m_worker, "addThread", Qt::QueuedConnection,
+            Q_ARG(int, id), Q_ARG(int, burstTime), Q_ARG(int, priority));
     }
 
     void GUIController::runAlgorithmBenchmark()
     {
-        if (!m_scheduler) return;
-
-        auto baselineThreads = m_scheduler->getAllThreads();
-        auto benchmarkResults = core::BenchmarkRunner::runBenchmark(baselineThreads);
-
-        m_benchmarkResults.clear();
-        for (const auto& res : benchmarkResults)
-        {
-            QVariantMap item;
-            item["schedulerName"] = QString::fromStdString(res.schedulerName);
-            item["totalTicks"] = static_cast<int>(res.totalTicks);
-            item["success"] = res.success;
-            item["throughput"] = res.metrics.throughput;
-            item["contextSwitches"] = static_cast<int>(res.metrics.contextSwitches);
-            item["jainsFairness"] = res.metrics.jainsFairnessIndex;
-            item["avgTurnaround"] = res.metrics.averageTurnaroundTime;
-            item["avgWaiting"] = res.metrics.averageWaitingTime;
-
-            m_benchmarkResults.append(item);
-        }
-
-        emit benchmarkResultsChanged();
+        QMetaObject::invokeMethod(m_worker, "runAlgorithmBenchmark", Qt::QueuedConnection);
     }
 
     QStringList GUIController::scenarioNames() const
@@ -298,35 +134,78 @@ namespace gui
         if (index < 0 || index >= static_cast<int>(scenarios.size()))
             return;
 
-        resetSimulation();
-
         const auto& scenario = scenarios[index];
         m_lastLoadedThreads = scenario.threads;
 
-        for (const auto& t : scenario.threads)
+        if (m_timer->isActive())
         {
-            auto thread = std::make_shared<core::Thread>(
-                static_cast<uint32_t>(t.id),
-                static_cast<uint32_t>(t.burstTime),
-                static_cast<uint32_t>(t.priority)
-            );
-            m_scheduler->addThread(thread);
+            m_timer->stop();
         }
 
-        updateReadyQueue();
-        updateThreadList();
-        emit ganttBlocksChanged();
+        QMetaObject::invokeMethod(m_worker, "loadScenario", Qt::QueuedConnection, Q_ARG(int, index));
+    }
+
+    void GUIController::onCurrentTimeChanged(int time)
+    {
+        m_currentTime = time;
+        emit currentTimeChanged();
         emit simulationUpdated();
+    }
+
+    void GUIController::onIsRunningChanged(bool running)
+    {
+        if (m_isRunning != running)
+        {
+            m_isRunning = running;
+            emit isRunningChanged();
+        }
+    }
+
+    void GUIController::onReadyQueueUpdated(const QVariantList& queue)
+    {
+        m_readyQueue = queue;
+        emit readyQueueChanged();
+    }
+
+    void GUIController::onThreadListUpdated(const QVariantList& threads)
+    {
+        m_threadList = threads;
+        emit threadListChanged();
+    }
+
+    void GUIController::onGanttBlockAppended(int threadId, const QString& name, int startTime, int duration, const QString& color)
+    {
+        QVariantMap block;
+        block["threadId"] = threadId;
+        block["name"] = name;
+        block["startTime"] = startTime;
+        block["duration"] = duration;
+        block["color"] = color;
+
+        m_ganttBlocks.append(block);
+        emit ganttBlocksChanged();
+    }
+
+    void GUIController::onGanttBlocksCleared()
+    {
+        m_ganttBlocks.clear();
+        emit ganttBlocksChanged();
+    }
+
+    void GUIController::onBenchmarkResultsUpdated(const QVariantList& results)
+    {
+        m_benchmarkResults = results;
+        emit benchmarkResultsChanged();
     }
 
     void GUIController::saveToJson(const QString& filePath)
     {
         QString path = filePath;
-        if (path.startsWith("file:///")) 
+        if (path.startsWith("file:///"))
         {
             path = path.mid(8);
         }
-        else if (path.startsWith("file://")) 
+        else if (path.startsWith("file://"))
         {
             path = path.mid(7);
         }
@@ -336,19 +215,14 @@ namespace gui
         rootObj["timeQuantum"] = m_timeQuantum;
 
         QJsonArray threadsArray;
-        if (m_scheduler)
+        for (const auto& itemVar : m_threadList)
         {
-            for (const auto& th : m_scheduler->getAllThreads())
-            {
-                if (th) 
-                {
-                    QJsonObject thObj;
-                    thObj["id"] = static_cast<int>(th->id);
-                    thObj["burstTime"] = static_cast<int>(th->burstTime);
-                    thObj["priority"] = static_cast<int>(th->priority);
-                    threadsArray.append(thObj);
-                }
-            }
+            QVariantMap item = itemVar.toMap();
+            QJsonObject thObj;
+            thObj["id"] = item["id"].toInt();
+            thObj["burstTime"] = item["burstTime"].toInt();
+            thObj["priority"] = item["priority"].toInt();
+            threadsArray.append(thObj);
         }
         rootObj["threads"] = threadsArray;
 
@@ -368,7 +242,7 @@ namespace gui
         {
             path = path.mid(8);
         }
-        else if (path.startsWith("file://")) 
+        else if (path.startsWith("file://"))
         {
             path = path.mid(7);
         }
@@ -390,11 +264,11 @@ namespace gui
 
         QJsonObject rootObj = doc.object();
 
-        if (rootObj.contains("scheduler")) 
+        if (rootObj.contains("scheduler"))
         {
             setCurrentScheduler(rootObj["scheduler"].toString());
         }
-        if (rootObj.contains("timeQuantum")) 
+        if (rootObj.contains("timeQuantum"))
         {
             setTimeQuantum(rootObj["timeQuantum"].toInt());
         }
@@ -404,7 +278,7 @@ namespace gui
         if (rootObj.contains("threads") && rootObj["threads"].isArray())
         {
             QJsonArray threadsArray = rootObj["threads"].toArray();
-            for (const auto& val : threadsArray) 
+            for (const auto& val : threadsArray)
             {
                 QJsonObject thObj = val.toObject();
                 int id = thObj["id"].toInt();
@@ -418,17 +292,17 @@ namespace gui
     void GUIController::exportCsv(const QString& filePath)
     {
         QString path = filePath;
-        if (path.startsWith("file:///")) 
+        if (path.startsWith("file:///"))
         {
             path = path.mid(8);
         }
-        else if (path.startsWith("file://")) 
+        else if (path.startsWith("file://"))
         {
             path = path.mid(7);
         }
 
         QFile file(path);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) 
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             return;
         }
@@ -436,7 +310,8 @@ namespace gui
         QTextStream out(&file);
         out << "Algorithm,TotalTicks,Throughput,ContextSwitches,JainsFairness,AvgWaiting,AvgTurnaround\n";
 
-        for (const auto& itemVar : m_benchmarkResults) {
+        for (const auto& itemVar : m_benchmarkResults) 
+        {
             QVariantMap item = itemVar.toMap();
             out << item["schedulerName"].toString() << ","
                 << item["totalTicks"].toInt() << ","

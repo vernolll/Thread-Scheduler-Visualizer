@@ -12,6 +12,8 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
     include/gui/GUIController.h
+    include/core/SimulationWorker.h
+
     src/gui/GUIController.cpp
     src/core/PCB.cpp
     src/core/Thread.cpp
@@ -26,6 +28,7 @@ add_library(core_lib STATIC
     src/core/MLFQScheduler.cpp
     src/core/BenchmarkRunner.cpp
     src/core/WorkloadScenario.cpp
+    src/core/SimulationWorker.cpp
 )
 
 target_include_directories(core_lib PUBLIC

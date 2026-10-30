@@ -5,9 +5,10 @@
 #include <QString>
 #include <QVariantList>
 #include <QTimer>
+#include <QThread>
 #include <memory>
 #include <vector>
-#include "core/Scheduler.h"
+#include "core/SimulationWorker.h"
 #include "core/WorkloadScenario.h"
 
 namespace gui
@@ -27,7 +28,7 @@ namespace gui
 
     public:
         explicit GUIController(QObject* parent = nullptr);
-        ~GUIController() override = default;
+        ~GUIController() override;
 
         QString currentScheduler() const { return m_currentScheduler; }
         void setCurrentScheduler(const QString& scheduler);
@@ -66,6 +67,15 @@ namespace gui
         void benchmarkResultsChanged();
         void currentTimeChanged();
 
+    private slots:
+        void onCurrentTimeChanged(int time);
+        void onIsRunningChanged(bool running);
+        void onReadyQueueUpdated(const QVariantList& queue);
+        void onThreadListUpdated(const QVariantList& threads);
+        void onGanttBlockAppended(int threadId, const QString& name, int startTime, int duration, const QString& color);
+        void onGanttBlocksCleared();
+        void onBenchmarkResultsUpdated(const QVariantList& results);
+
     private:
         QString m_currentScheduler{ "FCFS" };
         bool m_isRunning{ false };
@@ -76,13 +86,12 @@ namespace gui
         QVariantList m_readyQueue;
         QVariantList m_threadList;
         QVariantList m_benchmarkResults;
-        std::vector<core::ScenarioThreadConfig> m_lastLoadedThreads; // Сохраненные потоки сценария
-        std::shared_ptr<core::Scheduler> m_scheduler;
+        std::vector<core::ScenarioThreadConfig> m_lastLoadedThreads;
+
+        QThread m_workerThread;
+        core::SimulationWorker* m_worker{ nullptr };
         QTimer* m_timer{ nullptr };
 
-        void updateReadyQueue();
-        void updateThreadList();
-        void appendGanttBlock(int threadId, const QString& name, int startTime, int duration, const QString& color);
         QStringList scenarioNames() const;
     };
 }
