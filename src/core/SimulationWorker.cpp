@@ -10,6 +10,20 @@ namespace core
     SimulationWorker::SimulationWorker(QObject* parent) : QObject(parent)
     {
         m_scheduler = SchedulerFactory::createScheduler(SchedulerType::FCFS);
+        m_realExecutionManager = std::make_unique<core::RealExecutionManager>();
+
+        m_realExecutionManager->setStateChangeCallback(
+            [this](uint32_t threadId, ThreadState newState) 
+            {
+                handleRealThreadStateChange(threadId, newState);
+            }
+        );
+    }
+
+    void SimulationWorker::setExecutionMode(int mode)
+    {
+        m_executionMode = static_cast<ExecutionMode>(mode);
+        resetSimulation();
     }
 
     void SimulationWorker::setCurrentScheduler(const QString& scheduler, int timeQuantum)
@@ -60,6 +74,15 @@ namespace core
         {
             m_isRunning = true;
             emit isRunningChanged(true);
+
+            if (m_executionMode == ExecutionMode::REAL_THREADS)
+            {
+                if (m_scheduler)
+                {
+                    m_realExecutionManager->initialize(m_scheduler->getAllThreads());
+                    m_realExecutionManager->startExecution();
+                }
+            }
         }
     }
 
@@ -69,11 +92,21 @@ namespace core
         {
             m_isRunning = false;
             emit isRunningChanged(false);
+
+            if (m_executionMode == ExecutionMode::REAL_THREADS)
+            {
+                m_realExecutionManager->pauseExecution();
+            }
         }
     }
 
     void SimulationWorker::stepSimulation()
     {
+        if (m_executionMode == ExecutionMode::REAL_THREADS)
+        {
+            return;
+        }
+
         if (m_scheduler)
         {
             m_scheduler->tick();
@@ -103,6 +136,11 @@ namespace core
 
     void SimulationWorker::resetSimulation()
     {
+        if (m_realExecutionManager)
+        {
+            m_realExecutionManager->stopExecution();
+        }
+
         m_isRunning = false;
         emit isRunningChanged(false);
 
@@ -202,6 +240,31 @@ namespace core
         }
 
         emit benchmarkResultsUpdated(resultsList);
+    }
+
+    void SimulationWorker::handleRealThreadStateChange(uint32_t threadId, ThreadState newState)
+    {
+        QMetaObject::invokeMethod(this, [this, threadId, newState]() 
+            {
+            if (newState == ThreadState::RUNNING)
+            {
+                static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
+                QString color = palette[threadId % palette.size()];
+
+                emit ganttBlockAppended(
+                    static_cast<int>(threadId),
+                    QString("T%1").arg(threadId),
+                    m_currentTime,
+                    1,
+                    color
+                );
+                m_currentTime++;
+                emit currentTimeChanged(m_currentTime);
+            }
+
+            updateReadyQueue();
+            updateThreadList();
+            }, Qt::QueuedConnection);
     }
 
     void SimulationWorker::updateReadyQueue()

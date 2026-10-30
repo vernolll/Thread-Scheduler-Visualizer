@@ -8,9 +8,16 @@
 #include <vector>
 #include "core/Scheduler.h"
 #include "core/WorkloadScenario.h"
+#include "core/RealExecutionManager.h"
 
 namespace core
 {
+    enum class ExecutionMode
+    {
+        SIMULATION,
+        REAL_THREADS
+    };
+
     class SimulationWorker : public QObject
     {
         Q_OBJECT
@@ -19,6 +26,7 @@ namespace core
         ~SimulationWorker() override = default;
 
     public slots:
+        void setExecutionMode(int mode); // 0 = SIMULATION, 1 = REAL_THREADS
         void setCurrentScheduler(const QString& scheduler, int timeQuantum);
         void setTimeQuantum(int quantum);
         void startSimulation();
@@ -43,10 +51,14 @@ namespace core
         bool m_isRunning{ false };
         int m_timeQuantum{ 2 };
         int m_currentTime{ 0 };
+        ExecutionMode m_executionMode{ ExecutionMode::SIMULATION };
+
         std::shared_ptr<core::Scheduler> m_scheduler;
+        std::unique_ptr<core::RealExecutionManager> m_realExecutionManager;
 
         void updateReadyQueue();
         void updateThreadList();
+        void handleRealThreadStateChange(uint32_t threadId, ThreadState newState);
     };
 }
 

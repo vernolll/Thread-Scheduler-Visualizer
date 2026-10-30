@@ -29,6 +29,7 @@ add_library(core_lib STATIC
     src/core/BenchmarkRunner.cpp
     src/core/WorkloadScenario.cpp
     src/core/SimulationWorker.cpp
+    src/core/RealExecutionManager.cpp
 )
 
 target_include_directories(core_lib PUBLIC
