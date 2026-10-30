@@ -135,63 +135,64 @@ Distributed under the MIT [License](LICENSE). See LICENSE for more information.
 thread-scheduler-visualizer/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                 # GitHub Actions CI pipeline
-│       ├── readme-check.yml       # Auto-check README updates on structure changes
-│       └── release.yml            # Automated release workflow
+│       ├── ci.yml                    # GitHub Actions CI pipeline
+│       ├── readme-check.yml          # Auto-check README updates on structure changes
+│       └── release.yml               # Automated release workflow
 ├── docker/
-│   └── Dockerfile                 # Linux build environment container
+│   └── Dockerfile                    # Linux build environment container
 ├── include/
 │   ├── core/
-│   │   ├── BenchmarkRunner.h      # Benchmark runner interface for performance testing
-│   │   ├── EventLogger.h          # Event logging interface
-│   │   ├── FCFSScheduler.h        # First-Come, First-Served algorithm interface
-│   │   ├── ISceduler.h            # Abstract scheduler interface for polymorphism
-│   │   ├── MetricsCalculator.h    # Performance metrics calculation interface
-│   │   ├── MLFQScheduler.h        # Multi-Level Feedback Queue algorithm interface
-│   │   ├── PCB.h                  # Process Control Block class interface
-│   │   ├── PriorityScheduler.h    # Priority scheduling algorithm interface
-│   │   ├── RRScheduler.h          # Round Robin algorithm interface
-│   │   ├── Scheduler.h            # Abstract base scheduler interface
-│   │   ├── SchedulerFactory.h     # Scheduler factory interface
-│   │   ├── SimulationWorker.h     # Worker thread interface for simulation execution
-│   │   ├── ScedulerTypes.h        # Scheduler type enum & constants
-│   │   ├── SimulationEvent.h      # Simulation event structure & EventType enum
-│   │   ├── SJFScheduler.h         # Shortest Job First algorithm interface
-│   │   ├── SRTFScheduler.h        # Shortest Remaining Time First algorithm interface
-│   │   ├── Thread.h               # Thread structure & ThreadState enum
-│   │   └── WorkloadScenario.h     # Workload scenario interface for testing
+│   │   ├── BenchmarkRunner.h         # Benchmark runner interface for performance testing
+│   │   ├── EventLogger.h             # Event logging interface
+│   │   ├── FCFSScheduler.h           # First-Come, First-Served algorithm interface
+│   │   ├── ISceduler.h               # Abstract scheduler interface for polymorphism
+│   │   ├── MetricsCalculator.h       # Performance metrics calculation interface
+│   │   ├── MLFQScheduler.h           # Multi-Level Feedback Queue algorithm interface
+│   │   ├── PCB.h                     # Process Control Block class interface
+│   │   ├── PriorityScheduler.h       # Priority scheduling algorithm interface
+│   │   ├── RRScheduler.h             # Round Robin algorithm interface
+│   │   ├── Scheduler.h               # Abstract base scheduler interface
+│   │   ├── SchedulerFactory.h        # Scheduler factory interface
+│   │   ├── SimulationWorker.h        # Worker thread interface for simulation execution
+│   │   ├── ScedulerTypes.h           # Scheduler type enum & constants
+│   │   ├── SimulationEvent.h         # Simulation event structure & EventType enum
+│   │   ├── SJFScheduler.h            # Shortest Job First algorithm interface
+│   │   ├── SRTFScheduler.h           # Shortest Remaining Time First algorithm interface
+│   │   ├── Thread.h                  # Thread structure & ThreadState enum
+│   │   └── WorkloadScenario.h        # Workload scenario interface for testing
 │   └── gui/
-│       └── GUIController.h        # Qt/QML bridge & ViewModel interface
+│       └── GUIController.h           # Qt/QML bridge & ViewModel interface
 ├── resources/
 │   ├── icons/
-│   │   ├── app_icon.ico           # Windows multi-resolution icon
-│   │   └── app_icon.svg           # Cross-platform vector icon source
-│   ├── app.rc                     # Qt resource file for icon mapping
+│   │   ├── app_icon.ico              # Windows multi-resolution icon
+│   │   └── app_icon.svg              # Cross-platform vector icon source
+│   ├── app.rc                        # Qt resource file for icon mapping
 │   └── preview/
-│       └── screenshot.png         # Preview screenshot for README
+│       └── screenshot.png            # Preview screenshot for README
 ├── src/
 │   ├── core/
-│   │   ├── BenchmarkRunner.cpp    # Benchmark runner implementation
-│   │   ├── EventLogger.cpp        # Event logging implementation
-│   │   ├── FCFSScheduler.cpp      # FCFS algorithm implementation
-│   │   ├── MetricsCalculator.cpp  # Metrics calculation implementation
-│   │   ├── MLFQScheduler.cpp      # MLFQ algorithm implementation
-│   │   ├── PCB.cpp                # PCB implementation
-│   │   ├── PriorityScheduler.cpp  # Priority algorithm implementation
-│   │   ├── RRScheduler.cpp        # Round Robin algorithm implementation
-│   │   ├── SchedulerFactory.cpp   # Scheduler factory implementation
-│   │   ├── SimulationWorker.cpp   # Worker thread implementation
-│   │   ├── SJFScheduler.cpp       # SJF algorithm implementation
-│   │   ├── SRTFScheduler.cpp      # SRTF algorithm implementation
-│   │   ├── Thread.cpp             # Thread helpers implementation
-│   │   └── WorkloadScenario.cpp   # Workload scenario implementation
+│   │   ├── BenchmarkRunner.cpp       # Benchmark runner implementation
+│   │   ├── EventLogger.cpp           # Event logging implementation
+│   │   ├── FCFSScheduler.cpp         # FCFS algorithm implementation
+│   │   ├── MetricsCalculator.cpp     # Metrics calculation implementation
+│   │   ├── MLFQScheduler.cpp         # MLFQ algorithm implementation
+│   │   ├── PCB.cpp                   # PCB implementation
+│   │   ├── PriorityScheduler.cpp     # Priority algorithm implementation
+│   │   ├── RealExecutionManager.cpp  # Real execution manager implementation
+│   │   ├── RRScheduler.cpp           # Round Robin algorithm implementation
+│   │   ├── SchedulerFactory.cpp      # Scheduler factory implementation
+│   │   ├── SimulationWorker.cpp      # Worker thread implementation
+│   │   ├── SJFScheduler.cpp          # SJF algorithm implementation
+│   │   ├── SRTFScheduler.cpp         # SRTF algorithm implementation
+│   │   ├── Thread.cpp                # Thread helpers implementation
+│   │   └── WorkloadScenario.cpp      # Workload scenario implementation
 │   ├── gui/
-│   │   └── GUIController.cpp      # ViewModel implementation & Qt bindings
+│   │   └── GUIController.cpp         # ViewModel implementation & Qt bindings
 │   ├── qml/
-│   │   ├── BenchmarkWindow.qml    # Benchmarking window & QML layout
-│   │   └── main.qml               # Main application window & QML UI layout
-│   ├── main.cpp                   # Entry point / Cross-platform icon loader
-│   └── qml.qrc                    # Qt resource bundle for QML assets
+│   │   ├── BenchmarkWindow.qml       # Benchmarking window & QML layout
+│   │   └── main.qml                  # Main application window & QML UI layout
+│   ├── main.cpp                      # Entry point / Cross-platform icon loader
+│   └── qml.qrc                       # Qt resource bundle for QML assets
 ├── tests/
 │   ├── benchmarks/
 │   │   └── benchmark_schedulers.cpp
@@ -208,12 +209,12 @@ thread-scheduler-visualizer/
 │       ├── test_rr_scheduler.cpp
 │       ├── test_scheduler_factory.cpp
 │       └── test_sjf_srtf_scheduler.cpp
-├── CMakeLists.txt                 # Root CMake build configuration (with Qt6Svg)
-├── CMakePresets.json              # Standard CMake build presets
-├── GLOSSARY.md                    # Project domain glossary & technical definitions
-├── LICENSE                        # License file
-├── resources.qrc                  # Qt resource bundle (icons mapping)
-├── .gitignore                     # Git ignore rules
-└── README.md                      # Project documentation
+├── CMakeLists.txt                    # Root CMake build configuration (with Qt6Svg)
+├── CMakePresets.json                 # Standard CMake build presets
+├── GLOSSARY.md                       # Project domain glossary & technical definitions
+├── LICENSE                           # License file
+├── resources.qrc                     # Qt resource bundle (icons mapping)
+├── .gitignore                        # Git ignore rules
+└── README.md                         # Project documentation
 ```
 </details>
