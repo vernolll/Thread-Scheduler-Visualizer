@@ -66,6 +66,7 @@ target_link_libraries(thread_scheduler_visualizer PRIVATE
 )
 
 option(BUILD_TESTS "Build unit tests" ON)
+option(BUILD_BENCHMARKS "Build performance benchmarks" ON)
 
 if(BUILD_TESTS)
     enable_testing()
@@ -100,4 +101,26 @@ if(BUILD_TESTS)
 
     include(GoogleTest)
     gtest_discover_tests(tsv_core_tests)
+endif()
+
+if(BUILD_BENCHMARKS)
+    include(FetchContent)
+
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+    set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+
+    FetchContent_Declare(
+        googlebenchmark
+        URL https://github.com/google/benchmark/archive/refs/tags/v1.8.3.zip
+    )
+    FetchContent_MakeAvailable(googlebenchmark)
+
+    add_executable(tsv_benchmarks
+        tests/benchmarks/benchmark_schedulers.cpp
+    )
+
+    target_link_libraries(tsv_benchmarks PRIVATE
+        core_lib
+        benchmark::benchmark
+    )
 endif()
