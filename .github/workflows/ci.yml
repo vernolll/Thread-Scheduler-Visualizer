@@ -69,11 +69,7 @@ jobs:
 
     - name: Configure CMake (Windows MSVC)
       if: runner.os == 'Windows'
-      run: |
-        cmake -B build -S . \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DBUILD_TESTS=ON \
-          -DCMAKE_PREFIX_PATH="$env:Qt5_DIR"
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="$env:Qt5_DIR"
 
     - name: Build Project
       run: cmake --build build --config Debug
