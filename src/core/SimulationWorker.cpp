@@ -13,7 +13,7 @@ namespace core
         m_realExecutionManager = std::make_unique<core::RealExecutionManager>();
 
         m_realExecutionManager->setStateChangeCallback(
-            [this](uint32_t threadId, ThreadState newState) 
+            [this](uint32_t threadId, ThreadState newState)
             {
                 handleRealThreadStateChange(threadId, newState);
             }
@@ -32,29 +32,17 @@ namespace core
         m_timeQuantum = timeQuantum;
 
         if (m_currentScheduler == "FCFS")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::FCFS);
-        }
         else if (m_currentScheduler == "Round Robin")
-        {
             m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-        }
         else if (m_currentScheduler == "Priority")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::Priority);
-        }
         else if (m_currentScheduler == "SJF")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SJF);
-        }
         else if (m_currentScheduler == "SRTF")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SRTF);
-        }
         else if (m_currentScheduler == "MLFQ")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::MLFQ);
-        }
 
         resetSimulation();
     }
@@ -74,15 +62,6 @@ namespace core
         {
             m_isRunning = true;
             emit isRunningChanged(true);
-
-            if (m_executionMode == ExecutionMode::REAL_THREADS)
-            {
-                if (m_scheduler)
-                {
-                    m_realExecutionManager->initialize(m_scheduler->getAllThreads());
-                    m_realExecutionManager->startExecution();
-                }
-            }
         }
     }
 
@@ -92,20 +71,12 @@ namespace core
         {
             m_isRunning = false;
             emit isRunningChanged(false);
-
-            if (m_executionMode == ExecutionMode::REAL_THREADS)
-            {
-                m_realExecutionManager->pauseExecution();
-            }
         }
     }
 
     void SimulationWorker::stepSimulation()
     {
-        if (m_executionMode == ExecutionMode::REAL_THREADS)
-        {
-            return;
-        }
+        if (m_executionMode == ExecutionMode::REAL_THREADS) return;
 
         if (m_scheduler)
         {
@@ -134,44 +105,99 @@ namespace core
         }
     }
 
+    void SimulationWorker::stepBack()
+    {
+        if (m_executionMode == ExecutionMode::REAL_THREADS || m_currentTime <= 0) return;
+
+        int targetTick = m_currentTime - 1;
+        rebuildSchedulerAndFastForward(targetTick);
+    }
+
+    void SimulationWorker::rebuildSchedulerAndFastForward(int targetTick)
+    {
+        if (m_realExecutionManager) m_realExecutionManager->stopExecution();
+        m_isRunning = false;
+        emit isRunningChanged(false);
+
+        emit ganttBlocksCleared();
+
+        if (m_currentScheduler == "FCFS")
+            m_scheduler = SchedulerFactory::createScheduler(SchedulerType::FCFS);
+        else if (m_currentScheduler == "Round Robin")
+            m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
+        else if (m_currentScheduler == "Priority")
+            m_scheduler = SchedulerFactory::createScheduler(SchedulerType::Priority);
+        else if (m_currentScheduler == "SJF")
+            m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SJF);
+        else if (m_currentScheduler == "SRTF")
+            m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SRTF);
+        else if (m_currentScheduler == "MLFQ")
+            m_scheduler = SchedulerFactory::createScheduler(SchedulerType::MLFQ);
+
+        for (const auto& cfg : m_initialThreadConfigs)
+        {
+            auto thread = std::make_shared<core::Thread>(cfg.id, cfg.burstTime, cfg.priority);
+            m_scheduler->addThread(thread);
+        }
+
+        m_currentTime = 0;
+        static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
+
+        for (int t = 0; t < targetTick; ++t)
+        {
+            if (m_scheduler)
+            {
+                m_scheduler->tick();
+                auto activeThread = m_scheduler->getCurrentThread();
+                if (activeThread)
+                {
+                    uint32_t threadId = activeThread->id;
+                    QString color = palette[threadId % palette.size()];
+                    emit ganttBlockAppended(
+                        static_cast<int>(threadId),
+                        QString("T%1").arg(threadId),
+                        m_currentTime,
+                        1,
+                        color
+                    );
+                }
+                m_currentTime++;
+            }
+        }
+
+        updateReadyQueue();
+        updateThreadList();
+        emit currentTimeChanged(m_currentTime);
+    }
+
     void SimulationWorker::resetSimulation()
     {
-        if (m_realExecutionManager)
-        {
-            m_realExecutionManager->stopExecution();
-        }
+        if (m_realExecutionManager) m_realExecutionManager->stopExecution();
 
         m_isRunning = false;
         emit isRunningChanged(false);
 
         m_currentTime = 0;
         emit currentTimeChanged(m_currentTime);
-
         emit ganttBlocksCleared();
 
         if (m_currentScheduler == "FCFS")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::FCFS);
-        }
         else if (m_currentScheduler == "Round Robin")
-        {
             m_scheduler = std::make_shared<core::RRScheduler>(m_timeQuantum);
-        }
         else if (m_currentScheduler == "Priority")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::Priority);
-        }
         else if (m_currentScheduler == "SJF")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SJF);
-        }
         else if (m_currentScheduler == "SRTF")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::SRTF);
-        }
         else if (m_currentScheduler == "MLFQ")
-        {
             m_scheduler = SchedulerFactory::createScheduler(SchedulerType::MLFQ);
+
+        for (const auto& cfg : m_initialThreadConfigs)
+        {
+            auto thread = std::make_shared<core::Thread>(cfg.id, cfg.burstTime, cfg.priority);
+            m_scheduler->addThread(thread);
         }
 
         updateReadyQueue();
@@ -182,6 +208,7 @@ namespace core
     {
         if (m_scheduler)
         {
+            m_initialThreadConfigs.push_back({ static_cast<uint32_t>(id), static_cast<uint32_t>(burstTime), static_cast<uint32_t>(priority) });
             auto thread = std::make_shared<core::Thread>(
                 static_cast<uint32_t>(id),
                 static_cast<uint32_t>(burstTime),
@@ -199,27 +226,19 @@ namespace core
         if (index < 0 || index >= static_cast<int>(scenarios.size()))
             return;
 
-        resetSimulation();
-
         const auto& scenario = scenarios[index];
+        m_initialThreadConfigs.clear();
         for (const auto& t : scenario.threads)
         {
-            auto thread = std::make_shared<core::Thread>(
-                static_cast<uint32_t>(t.id),
-                static_cast<uint32_t>(t.burstTime),
-                static_cast<uint32_t>(t.priority)
-            );
-            m_scheduler->addThread(thread);
+            m_initialThreadConfigs.push_back({ t.id, t.burstTime, t.priority });
         }
 
-        updateReadyQueue();
-        updateThreadList();
+        resetSimulation();
     }
 
     void SimulationWorker::runAlgorithmBenchmark()
     {
         if (!m_scheduler) return;
-
         auto baselineThreads = m_scheduler->getAllThreads();
         auto benchmarkResults = BenchmarkRunner::runBenchmark(baselineThreads);
 
@@ -235,35 +254,25 @@ namespace core
             item["jainsFairness"] = res.metrics.jainsFairnessIndex;
             item["avgTurnaround"] = res.metrics.averageTurnaroundTime;
             item["avgWaiting"] = res.metrics.averageWaitingTime;
-
             resultsList.append(item);
         }
-
         emit benchmarkResultsUpdated(resultsList);
     }
 
     void SimulationWorker::handleRealThreadStateChange(uint32_t threadId, ThreadState newState)
     {
-        QMetaObject::invokeMethod(this, [this, threadId, newState]() 
+        QMetaObject::invokeMethod(this, [this, threadId, newState]()
             {
-            if (newState == ThreadState::RUNNING)
-            {
-                static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-                QString color = palette[threadId % palette.size()];
-
-                emit ganttBlockAppended(
-                    static_cast<int>(threadId),
-                    QString("T%1").arg(threadId),
-                    m_currentTime,
-                    1,
-                    color
-                );
-                m_currentTime++;
-                emit currentTimeChanged(m_currentTime);
-            }
-
-            updateReadyQueue();
-            updateThreadList();
+                if (newState == ThreadState::RUNNING)
+                {
+                    static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
+                    QString color = palette[threadId % palette.size()];
+                    emit ganttBlockAppended(static_cast<int>(threadId), QString("T%1").arg(threadId), m_currentTime, 1, color);
+                    m_currentTime++;
+                    emit currentTimeChanged(m_currentTime);
+                }
+                updateReadyQueue();
+                updateThreadList();
             }, Qt::QueuedConnection);
     }
 
@@ -274,7 +283,6 @@ namespace core
         {
             const auto& allThreads = m_scheduler->getAllThreads();
             static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-
             for (const auto& th : allThreads)
             {
                 if (th && th->state == ThreadState::READY)
@@ -298,7 +306,6 @@ namespace core
         {
             const auto& allThreads = m_scheduler->getAllThreads();
             static QStringList palette = { "#4caf50", "#2196f3", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4" };
-
             for (const auto& th : allThreads)
             {
                 if (th)
@@ -310,7 +317,6 @@ namespace core
                     item["remainingTime"] = static_cast<int>(th->remainingTime);
                     item["state"] = QString::fromStdString(toString(th->state));
                     item["color"] = palette[th->id % palette.size()];
-
                     threadList.append(item);
                 }
             }

@@ -50,6 +50,7 @@ namespace gui
         void startSimulation();
         void pauseSimulation();
         void stepSimulation();
+        void stepBack();
         void resetSimulation();
         void addThread(int id, int burstTime, int priority);
         void runAlgorithmBenchmark();

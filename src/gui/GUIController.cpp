@@ -314,4 +314,9 @@ namespace gui
 
         file.close();
     }
+
+    void GUIController::stepBack()
+    {
+        QMetaObject::invokeMethod(m_worker, "stepBack", Qt::QueuedConnection);
+    }
 }

@@ -26,12 +26,13 @@ namespace core
         ~SimulationWorker() override = default;
 
     public slots:
-        void setExecutionMode(int mode); // 0 = SIMULATION, 1 = REAL_THREADS
+        void setExecutionMode(int mode);
         void setCurrentScheduler(const QString& scheduler, int timeQuantum);
         void setTimeQuantum(int quantum);
         void startSimulation();
         void pauseSimulation();
         void stepSimulation();
+        void stepBack(); 
         void resetSimulation();
         void addThread(int id, int burstTime, int priority);
         void loadScenario(int index);
@@ -56,9 +57,18 @@ namespace core
         std::shared_ptr<core::Scheduler> m_scheduler;
         std::unique_ptr<core::RealExecutionManager> m_realExecutionManager;
 
+        struct ThreadConfig
+        {
+            uint32_t id;
+            uint32_t burstTime;
+            uint32_t priority;
+        };
+        std::vector<ThreadConfig> m_initialThreadConfigs;
+
         void updateReadyQueue();
         void updateThreadList();
         void handleRealThreadStateChange(uint32_t threadId, ThreadState newState);
+        void rebuildSchedulerAndFastForward(int targetTick);
     };
 }
 

@@ -95,6 +95,14 @@ ApplicationWindow {
                     }
 
                     Button {
+                        text: "Step Back"
+                        enabled: !(guiController && guiController.isRunning) && (guiController && guiController.currentTime > 0)
+                        onClicked: {
+                            if (guiController) guiController.stepBack()
+                        }
+                    }
+
+                    Button {
                         text: "Reset"
                         onClicked: {
                             if (guiController) guiController.resetSimulation()
