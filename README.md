@@ -198,7 +198,8 @@ thread-scheduler-visualizer/
 │   │   └── ThreadListModel.cpp       # Thread list model implementation
 │   ├── qml/
 │   │   ├── BenchmarkWindow.qml       # Benchmarking window & QML layout
-│   │   └── main.qml                  # Main application window & QML UI layout
+│   │   ├── main.qml                  # Main application window & QML UI layout
+│   │   └── ThreadStateDiagram.qml    # Thread state diagram & QML animation
 │   ├── main.cpp                      # Entry point / Cross-platform icon loader
 │   └── qml.qrc                       # Qt resource bundle for QML assets
 ├── tests/
