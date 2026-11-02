@@ -59,3 +59,35 @@ jobs:
           echo "GUI application crashed on startup!"
           exit 1
         fi
+
+  build-and-test-sanitizers:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          g++ \
+          qtbase5-dev \
+          qtdeclarative5-dev \
+          libqt5svg5-dev
+
+    - name: Configure CMake with Sanitizers
+      run: |
+        cmake -B build-asan -S . \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DENABLE_SANITIZERS=ON \
+          -DBUILD_TESTS=ON \
+          -DBUILD_BENCHMARKS=OFF
+
+    - name: Build with ASan & UBSan
+      run: cmake --build build-asan --config Debug
+
+    - name: Run Unit Tests under ASan/UBSan
+      run: ctest --test-dir build-asan --output-on-failure
