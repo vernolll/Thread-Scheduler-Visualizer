@@ -20,6 +20,18 @@ if(ENABLE_SANITIZERS)
     endif()
 endif()
 
+option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
+
+if(ENABLE_TSAN)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-fsanitize=thread -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=thread)
+        message(STATUS "ThreadSanitizer is ENABLED.")
+    else()
+        message(WARNING "ThreadSanitizer is supported only with GCC and Clang.")
+    endif()
+endif()
+
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
