@@ -161,7 +161,11 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.h                  # Thread structure & ThreadState enum
 │   │   └── WorkloadScenario.h        # Workload scenario interface for testing
 │   └── gui/
-│       └── GUIController.h           # Qt/QML bridge & ViewModel interface
+│       ├── BenchmarkWindow.h         # Benchmarking window interface
+│       ├── GanttChartModel.h         # Gantt chart data model for QML binding
+│       ├── GUIController.h           # Qt/QML bridge & ViewModel interface
+│       ├── ReadyQueueModel.h         # Ready queue data model for QML binding
+│       └── ThreadListModel.h         # Thread list data model for QML binding
 ├── resources/
 │   ├── icons/
 │   │   ├── app_icon.ico              # Windows multi-resolution icon
@@ -187,7 +191,11 @@ thread-scheduler-visualizer/
 │   │   ├── Thread.cpp                # Thread helpers implementation
 │   │   └── WorkloadScenario.cpp      # Workload scenario implementation
 │   ├── gui/
-│   │   └── GUIController.cpp         # ViewModel implementation & Qt bindings
+│   │   ├── BenchmarkWindow.cpp       # Benchmarking window implementation
+│   │   ├── GanttChartModel.cpp       # Gantt chart model implementation
+│   │   ├── GUIController.cpp         # ViewModel implementation & Qt bindings
+│   │   ├── ReadyQueueModel.cpp       # Ready queue model implementation
+│   │   └── ThreadListModel.cpp       # Thread list model implementation
 │   ├── qml/
 │   │   ├── BenchmarkWindow.qml       # Benchmarking window & QML layout
 │   │   └── main.qml                  # Main application window & QML UI layout

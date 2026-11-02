@@ -54,9 +54,17 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
     include/gui/GUIController.h
+    include/gui/ThreadListModel.h
+    include/gui/ReadyQueueModel.h
+    include/gui/GanttChartModel.h
+    include/gui/BenchmarkResultsModel.h
     include/core/SimulationWorker.h
 
     src/gui/GUIController.cpp
+    src/gui/ThreadListModel.cpp
+    src/gui/ReadyQueueModel.cpp
+    src/gui/GanttChartModel.cpp
+    src/gui/BenchmarkResultsModel.cpp
     src/core/PCB.cpp
     src/core/Thread.cpp
     src/core/FCFSScheduler.cpp

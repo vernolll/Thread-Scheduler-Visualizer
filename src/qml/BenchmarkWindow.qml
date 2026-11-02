@@ -80,7 +80,7 @@ Popup {
         ListView {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: guiController ? guiController.benchmarkResults : []
+            model: guiController ? guiController.benchmarkResultsModel : null
             clip: true
             spacing: 4
 
@@ -96,13 +96,13 @@ Popup {
                     anchors.leftMargin: 10
                     anchors.rightMargin: 10
 
-                    Text { text: modelData.schedulerName; color: "#ffffff"; font.bold: true; Layout.preferredWidth: 110 }
-                    Text { text: modelData.totalTicks; color: "#cccccc"; Layout.preferredWidth: 60 }
-                    Text { text: Number(modelData.throughput).toFixed(4); color: "#4caf50"; Layout.preferredWidth: 95 }
-                    Text { text: modelData.contextSwitches; color: "#cccccc"; Layout.preferredWidth: 95 }
-                    Text { text: Number(modelData.jainsFairness).toFixed(3); color: "#2196f3"; Layout.preferredWidth: 110 }
-                    Text { text: Number(modelData.avgWaiting).toFixed(1); color: "#cccccc"; Layout.preferredWidth: 95 }
-                    Text { text: Number(modelData.avgTurnaround).toFixed(1); color: "#ff9800"; Layout.fillWidth: true }
+                    Text { text: model.schedulerName; color: "#ffffff"; font.bold: true; Layout.preferredWidth: 110 }
+                    Text { text: model.totalTicks; color: "#cccccc"; Layout.preferredWidth: 60 }
+                    Text { text: Number(model.throughput).toFixed(4); color: "#4caf50"; Layout.preferredWidth: 95 }
+                    Text { text: model.contextSwitches; color: "#cccccc"; Layout.preferredWidth: 95 }
+                    Text { text: Number(model.jainsFairness).toFixed(3); color: "#2196f3"; Layout.preferredWidth: 110 }
+                    Text { text: Number(model.avgWaiting).toFixed(1); color: "#cccccc"; Layout.preferredWidth: 95 }
+                    Text { text: Number(model.avgTurnaround).toFixed(1); color: "#ff9800"; Layout.fillWidth: true }
                 }
             }
         }
