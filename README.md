@@ -218,3 +218,5 @@ thread-scheduler-visualizer/
 └── README.md                         # Project documentation
 ```
 </details>
+
+[![Code Coverage](https://img.shields.io/badge/coverage-80%25%2B-brightgreen)](https://github.com/vernoll/thread-scheduler-visualizer)
