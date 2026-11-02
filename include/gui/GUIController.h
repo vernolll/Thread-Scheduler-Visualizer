@@ -22,6 +22,8 @@ namespace gui
             Q_PROPERTY(QString currentScheduler READ currentScheduler WRITE setCurrentScheduler NOTIFY currentSchedulerChanged)
             Q_PROPERTY(bool isRunning READ isRunning NOTIFY isRunningChanged)
             Q_PROPERTY(int timeQuantum READ timeQuantum WRITE setTimeQuantum NOTIFY timeQuantumChanged)
+            Q_PROPERTY(bool isDarkMode READ isDarkMode WRITE setIsDarkMode NOTIFY isDarkModeChanged)
+            Q_PROPERTY(bool animationsEnabled READ animationsEnabled WRITE setAnimationsEnabled NOTIFY animationsEnabledChanged)
             Q_PROPERTY(QObject* ganttBlocksModel READ ganttBlocksModel CONSTANT)
             Q_PROPERTY(QObject* readyQueueModel READ readyQueueModel CONSTANT)
             Q_PROPERTY(QObject* threadListModel READ threadListModel CONSTANT)
@@ -39,6 +41,12 @@ namespace gui
         bool isRunning() const { return m_isRunning; }
         int timeQuantum() const { return m_timeQuantum; }
         void setTimeQuantum(int quantum);
+
+        bool isDarkMode() const { return m_isDarkMode; }
+        void setIsDarkMode(bool darkMode);
+
+        bool animationsEnabled() const { return m_animationsEnabled; }
+        void setAnimationsEnabled(bool enabled);
 
         QObject* ganttBlocksModel() { return &m_ganttChartModel; }
         QObject* readyQueueModel() { return &m_readyQueueModel; }
@@ -64,6 +72,8 @@ namespace gui
         void currentSchedulerChanged();
         void isRunningChanged();
         void timeQuantumChanged();
+        void isDarkModeChanged();
+        void animationsEnabledChanged();
         void simulationUpdated();
         void currentTimeChanged();
 
@@ -82,6 +92,8 @@ namespace gui
         int m_timeQuantum{ 2 };
         int m_currentTime{ 0 };
         int m_nextThreadId{ 0 };
+        bool m_isDarkMode{ true };
+        bool m_animationsEnabled{ true };
 
         ThreadListModel m_threadListModel;
         ReadyQueueModel m_readyQueueModel;
