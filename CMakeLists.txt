@@ -44,6 +44,12 @@ if(ENABLE_COVERAGE)
     endif()
 endif()
 
+if(MSVC)
+    add_compile_options(/WX)
+else()
+    add_compile_options(-Werror)
+endif()
+
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
