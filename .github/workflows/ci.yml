@@ -95,8 +95,95 @@ jobs:
           exit 1
         fi
 
+  release-and-smoke-test:
+    needs: [build-matrix]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Qt (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          qtbase5-dev \
+          qtdeclarative5-dev \
+          libqt5svg5-dev
+
+    - name: Set up Qt (Windows)
+      if: runner.os == 'Windows'
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        arch: 'win64_msvc2019_64'
+
+    - name: Configure CMake (Release Linux)
+      if: runner.os == 'Linux'
+      run: |
+        cmake -B build-release -S . \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTS=OFF \
+          -G Ninja
+
+    - name: Configure CMake (Release Windows)
+      if: runner.os == 'Windows'
+      run: cmake -B build-release -S . -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF -DCMAKE_PREFIX_PATH="$env:Qt5_DIR"
+
+    - name: Build Project (Release)
+      run: cmake --build build-release --config Release
+
+    - name: Package Binaries (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $qtBin = Join-Path $env:QT_ROOT_DIR "bin"
+        $windeployqt = Join-Path $qtBin "windeployqt.exe"
+        
+        New-Item -ItemType Directory -Force -Path "release_dist"
+        Copy-Item "build-release/Release/thread_scheduler_visualizer.exe" "release_dist/"
+        
+        & $windeployqt --release --qmldir src/qml "release_dist/thread_scheduler_visualizer.exe"
+        
+        Compress-Archive -Path "release_dist/*" -DestinationPath "ThreadSchedulerVisualizer-Windows.zip"
+
+    - name: Package Binaries (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        mkdir -p release_dist
+        cp build-release/thread_scheduler_visualizer release_dist/
+        
+        tar -czvf ThreadSchedulerVisualizer-Linux.tar.gz -C release_dist .
+
+    - name: Smoke Test (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Start-Process -FilePath "release_dist/thread_scheduler_visualizer.exe" -PassThru -WindowStyle Hidden | Stop-Process
+        Write-Host "Windows smoke test passed successfully!"
+
+    - name: Smoke Test (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        ldd build-release/thread_scheduler_visualizer
+        echo "Linux smoke test passed successfully!"
+
+    - name: Upload Release Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-artifacts-${{ runner.os }}
+        path: |
+          ThreadSchedulerVisualizer-Windows.zip
+          ThreadSchedulerVisualizer-Linux.tar.gz
+
   build-and-test-sanitizers:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -128,7 +215,7 @@ jobs:
       run: ctest --test-dir build-asan --output-on-failure
 
   build-and-test-tsan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -160,7 +247,7 @@ jobs:
       run: ctest --test-dir build-tsan --output-on-failure
 
   code-coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -201,7 +288,7 @@ jobs:
           --print-summary
 
   static-analysis:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
