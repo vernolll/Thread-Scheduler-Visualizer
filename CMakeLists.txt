@@ -135,6 +135,8 @@ if(BUILD_TESTS)
         tests/unit/test_mlfq_scheduler.cpp
         tests/unit/test_parameterized_schedulers.cpp
         tests/unit/test_benchmark_runner.cpp
+
+        tests/core/test_simulation_invariants.cpp
     )
 
     target_link_libraries(tsv_core_tests PRIVATE
