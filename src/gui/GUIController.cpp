@@ -1,8 +1,5 @@
 #include "gui/GUIController.h"
 #include "core/WorkloadScenario.h"
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QQmlContext>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -102,6 +99,11 @@ namespace gui
         m_nextThreadId = 0;
         m_lastLoadedThreads.clear();
 
+        m_ganttChartModel.clear();
+        m_readyQueueModel.clear();
+        m_threadListModel.clear();
+        m_benchmarkResultsModel.clear();
+
         QMetaObject::invokeMethod(m_worker, "resetSimulation", Qt::QueuedConnection);
     }
 
@@ -163,39 +165,27 @@ namespace gui
 
     void GUIController::onReadyQueueUpdated(const QVariantList& queue)
     {
-        m_readyQueue = queue;
-        emit readyQueueChanged();
+        m_readyQueueModel.updateItems(queue);
     }
 
     void GUIController::onThreadListUpdated(const QVariantList& threads)
     {
-        m_threadList = threads;
-        emit threadListChanged();
+        m_threadListModel.updateThreads(threads);
     }
 
     void GUIController::onGanttBlockAppended(int threadId, const QString& name, int startTime, int duration, const QString& color)
     {
-        QVariantMap block;
-        block["threadId"] = threadId;
-        block["name"] = name;
-        block["startTime"] = startTime;
-        block["duration"] = duration;
-        block["color"] = color;
-
-        m_ganttBlocks.append(block);
-        emit ganttBlocksChanged();
+        m_ganttChartModel.appendBlock(threadId, name, startTime, duration, color);
     }
 
     void GUIController::onGanttBlocksCleared()
     {
-        m_ganttBlocks.clear();
-        emit ganttBlocksChanged();
+        m_ganttChartModel.clear();
     }
 
     void GUIController::onBenchmarkResultsUpdated(const QVariantList& results)
     {
-        m_benchmarkResults = results;
-        emit benchmarkResultsChanged();
+        m_benchmarkResultsModel.updateResults(results);
     }
 
     void GUIController::saveToJson(const QString& filePath)
@@ -215,13 +205,13 @@ namespace gui
         rootObj["timeQuantum"] = m_timeQuantum;
 
         QJsonArray threadsArray;
-        for (const auto& itemVar : m_threadList)
+        for (int i = 0; i < m_threadListModel.rowCount(); ++i)
         {
-            QVariantMap item = itemVar.toMap();
+            QModelIndex idx = m_threadListModel.index(i, 0);
             QJsonObject thObj;
-            thObj["id"] = item["id"].toInt();
-            thObj["burstTime"] = item["burstTime"].toInt();
-            thObj["priority"] = item["priority"].toInt();
+            thObj["id"] = idx.data(ThreadListModel::IdRole).toInt();
+            thObj["burstTime"] = idx.data(ThreadListModel::BurstTimeRole).toInt();
+            thObj["priority"] = idx.data(ThreadListModel::PriorityRole).toInt();
             threadsArray.append(thObj);
         }
         rootObj["threads"] = threadsArray;
@@ -310,16 +300,16 @@ namespace gui
         QTextStream out(&file);
         out << "Algorithm,TotalTicks,Throughput,ContextSwitches,JainsFairness,AvgWaiting,AvgTurnaround\n";
 
-        for (const auto& itemVar : m_benchmarkResults) 
+        for (int i = 0; i < m_benchmarkResultsModel.rowCount(); ++i)
         {
-            QVariantMap item = itemVar.toMap();
-            out << item["schedulerName"].toString() << ","
-                << item["totalTicks"].toInt() << ","
-                << item["throughput"].toDouble() << ","
-                << item["contextSwitches"].toInt() << ","
-                << item["jainsFairness"].toDouble() << ","
-                << item["avgWaiting"].toDouble() << ","
-                << item["avgTurnaround"].toDouble() << "\n";
+            QModelIndex idx = m_benchmarkResultsModel.index(i, 0);
+            out << idx.data(BenchmarkResultsModel::SchedulerNameRole).toString() << ","
+                << idx.data(BenchmarkResultsModel::TotalTicksRole).toULongLong() << ","
+                << idx.data(BenchmarkResultsModel::ThroughputRole).toDouble() << ","
+                << idx.data(BenchmarkResultsModel::ContextSwitchesRole).toInt() << ","
+                << idx.data(BenchmarkResultsModel::JainsFairnessRole).toDouble() << ","
+                << idx.data(BenchmarkResultsModel::AvgWaitingRole).toDouble() << ","
+                << idx.data(BenchmarkResultsModel::AvgTurnaroundRole).toDouble() << "\n";
         }
 
         file.close();

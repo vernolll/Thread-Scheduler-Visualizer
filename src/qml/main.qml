@@ -96,7 +96,7 @@ ApplicationWindow {
             }
         }
 
-        // Predefined Workload Scenarios & IO Panel (Сюда добавили кнопки сохранения/экспорта)
+        // Predefined Workload Scenarios & IO Panel
         GroupBox {
             title: "Predefined Workload Scenarios & I/O"
             Layout.fillWidth: true
@@ -219,13 +219,13 @@ ApplicationWindow {
                         spacing: 8
                         
                         Repeater {
-                            model: guiController ? guiController.readyQueue : []
+                            model: guiController ? guiController.readyQueueModel : null
 
                             Rectangle {
                                 width: 90
                                 height: 50
                                 color: "#2a2a2a"
-                                border.color: modelData.color
+                                border.color: model.color
                                 border.width: 2
                                 radius: 4
 
@@ -237,20 +237,20 @@ ApplicationWindow {
                                 }
 
                                 ToolTip.visible: hoverHandler.hovered
-                                ToolTip.text: "Thread T" + modelData.id + "\nPriority: " + modelData.priority + "\nBurst: " + modelData.burstTime
+                                ToolTip.text: "Thread T" + model.threadId + "\nPriority: " + model.priority + "\nBurst: " + model.burstTime
 
                                 Column {
                                     anchors.centerIn: parent
                                     spacing: 2
                                     Text {
-                                        text: "Thread " + modelData.id
+                                        text: "Thread " + model.threadId
                                         color: "#ffffff"
                                         font.bold: true
                                         font.pixelSize: 11
                                         anchors.horizontalCenter: parent.horizontalCenter
                                     }
                                     Text {
-                                        text: "Burst: " + modelData.burstTime
+                                        text: "Burst: " + model.burstTime
                                         color: "#aaaaaa"
                                         font.pixelSize: 10
                                         anchors.horizontalCenter: parent.horizontalCenter
@@ -304,12 +304,12 @@ ApplicationWindow {
                         spacing: 2
                         
                         Repeater {
-                            model: guiController ? guiController.ganttBlocks : []
+                            model: guiController ? guiController.ganttBlocksModel : null
 
                             Rectangle {
-                                width: modelData.duration * 40
+                                width: model.duration * 40
                                 height: 70
-                                color: hoverHandlerGantt.hovered ? Qt.lighter(modelData.color, 1.2) : modelData.color
+                                color: hoverHandlerGantt.hovered ? Qt.lighter(model.color, 1.2) : model.color
                                 radius: 4
                                 border.color: "#ffffff"
                                 border.width: 1
@@ -325,18 +325,18 @@ ApplicationWindow {
                                 }
 
                                 ToolTip.visible: hoverHandlerGantt.hovered
-                                ToolTip.text: "Execution Block: " + modelData.name + "\nInterval: [" + modelData.startTime + " - " + (modelData.startTime + modelData.duration) + "]"
+                                ToolTip.text: "Execution Block: " + model.name + "\nInterval: [" + model.startTime + " - " + (model.startTime + model.duration) + "]"
 
                                 Column {
                                     anchors.centerIn: parent
                                     Text {
-                                        text: modelData.name
+                                        text: model.name
                                         color: "#ffffff"
                                         font.bold: true
                                         anchors.horizontalCenter: parent.horizontalCenter
                                     }
                                     Text {
-                                        text: "[" + modelData.startTime + " - " + (modelData.startTime + modelData.duration) + "]"
+                                        text: "[" + model.startTime + " - " + (model.startTime + model.duration) + "]"
                                         color: "#dddddd"
                                         font.pixelSize: 10
                                         anchors.horizontalCenter: parent.horizontalCenter
@@ -391,7 +391,7 @@ ApplicationWindow {
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    model: guiController ? guiController.threadList : []
+                    model: guiController ? guiController.threadListModel : null
                     clip: true
                     spacing: 4
 
@@ -414,11 +414,11 @@ ApplicationWindow {
                                     width: 10
                                     height: 10
                                     radius: 5
-                                    color: modelData.color
+                                    color: model.color
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
                                 Text {
-                                    text: "T" + modelData.id
+                                    text: "T" + model.threadId
                                     color: "#ffffff"
                                     font.bold: true
                                     anchors.verticalCenter: parent.verticalCenter
@@ -426,7 +426,7 @@ ApplicationWindow {
                             }
 
                             Text {
-                                text: modelData.priority
+                                text: model.priority
                                 color: "#cccccc"
                                 Layout.preferredWidth: 80
                             }
@@ -436,14 +436,14 @@ ApplicationWindow {
                                 height: 20
                                 radius: 4
                                 color: {
-                                    if (modelData.state === "RUNNING") return "#2e7d32"
-                                    if (modelData.state === "READY") return "#0277bd"
-                                    if (modelData.state === "TERMINATED") return "#424242"
+                                    if (model.state === "RUNNING") return "#2e7d32"
+                                    if (model.state === "READY") return "#0277bd"
+                                    if (model.state === "TERMINATED") return "#424242"
                                     return "#616161"
                                 }
 
                                 Text {
-                                    text: modelData.state
+                                    text: model.state
                                     color: "#ffffff"
                                     font.pixelSize: 11
                                     font.bold: true
@@ -452,7 +452,7 @@ ApplicationWindow {
                             }
 
                             Text {
-                                text: modelData.remainingTime + " / " + modelData.burstTime + " ticks"
+                                text: model.remainingTime + " / " + model.burstTime + " ticks"
                                 color: "#cccccc"
                                 Layout.fillWidth: true
                             }
