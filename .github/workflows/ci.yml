@@ -7,20 +7,38 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  build-matrix:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+          - os: ubuntu-22.04
+            compiler: clang
+            cc: clang
+            cxx: clang++
+          - os: windows-latest
+            compiler: msvc
+            cc: cl
+            cxx: cl
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install Dependencies
+    - name: Install Dependencies (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         sudo apt-get update
         sudo apt-get install -y \
           build-essential \
           cmake \
           ninja-build \
-          g++ \
+          ${{ matrix.compiler == 'clang' && 'clang' || 'g++' }} \
           qtbase5-dev \
           qtdeclarative5-dev \
           libqt5svg5-dev \
@@ -31,19 +49,36 @@ jobs:
           qml-module-qtquick-window2 \
           qml-module-qtquick-dialogs
 
-    - name: Configure CMake
+    - name: Set up Qt (Windows)
+      if: runner.os == 'Windows'
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        arch: 'win64_msvc2019_64'
+
+    - name: Configure CMake (Linux)
+      if: runner.os == 'Linux'
+      env:
+        CC: ${{ matrix.cc }}
+        CXX: ${{ matrix.cxx }}
       run: |
         cmake -B build -S . \
           -DCMAKE_BUILD_TYPE=Debug \
-          -DBUILD_TESTS=ON
+          -DBUILD_TESTS=ON \
+          -G Ninja
+
+    - name: Configure CMake (Windows MSVC)
+      if: runner.os == 'Windows'
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_PREFIX_PATH="$env:Qt5_DIR"
 
     - name: Build Project
       run: cmake --build build --config Debug
-      
+
     - name: Run Core Unit Tests
       run: ctest --test-dir build --output-on-failure
-      
-    - name: Run GUI Sanity Check (Offscreen)
+
+    - name: Run GUI Sanity Check (Offscreen - Linux Only)
+      if: runner.os == 'Linux'
       env:
         QT_QPA_PLATFORM: offscreen
         QT_QUICK_BACKEND: software
@@ -92,38 +127,37 @@ jobs:
     - name: Run Unit Tests under ASan/UBSan
       run: ctest --test-dir build-asan --output-on-failure
 
-
   build-and-test-tsan:
-        runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-        steps:
-        - uses: actions/checkout@v3
+    steps:
+    - uses: actions/checkout@v3
 
-        - name: Install Dependencies
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y \
-              build-essential \
-              cmake \
-              ninja-build \
-              g++ \
-              qtbase5-dev \
-              qtdeclarative5-dev \
-              libqt5svg5-dev
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          g++ \
+          qtbase5-dev \
+          qtdeclarative5-dev \
+          libqt5svg5-dev
 
-        - name: Configure CMake with ThreadSanitizer
-          run: |
-            cmake -B build-tsan -S . \
-              -DCMAKE_BUILD_TYPE=Debug \
-              -DENABLE_TSAN=ON \
-              -DBUILD_TESTS=ON \
-              -DBUILD_BENCHMARKS=OFF
+    - name: Configure CMake with ThreadSanitizer
+      run: |
+        cmake -B build-tsan -S . \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DENABLE_TSAN=ON \
+          -DBUILD_TESTS=ON \
+          -DBUILD_BENCHMARKS=OFF
 
-        - name: Build with TSan
-          run: cmake --build build-tsan --config Debug
+    - name: Build with TSan
+      run: cmake --build build-tsan --config Debug
 
-        - name: Run Unit Tests under TSan
-          run: ctest --test-dir build-tsan --output-on-failure
+    - name: Run Unit Tests under TSan
+      run: ctest --test-dir build-tsan --output-on-failure
 
   code-coverage:
     runs-on: ubuntu-latest
