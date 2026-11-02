@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>qml/main.qml</file>
         <file>qml/BenchmarkWindow.qml</file>
+        <file>qml/ThreadStateDiagram.qml</file>
     </qresource>
 </RCC>
