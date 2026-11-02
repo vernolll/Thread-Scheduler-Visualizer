@@ -91,7 +91,7 @@ namespace core
                         m_currentThread->currentBurstIndex++;
                         if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
                         {
-                            auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
+                            const auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
                             if (!nextBurst.isCpuBurst)
                             {
                                 changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");

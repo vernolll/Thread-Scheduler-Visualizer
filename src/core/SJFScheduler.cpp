@@ -5,24 +5,24 @@ namespace core
 {
     void SJFScheduler::sortReadyQueue()
     {
-        std::sort(m_readyQueue.begin(), m_readyQueue.end(), [](const auto& a, const auto& b) 
+        std::sort(m_readyQueue.begin(), m_readyQueue.end(), [](const auto& a, const auto& b)
             {
-            uint32_t burstA = 0;
-            if (a->currentBurstIndex < a->ioBursts.size())
-            {
-                burstA = a->ioBursts[a->currentBurstIndex].remaining;
-            }
-            uint32_t burstB = 0;
-            if (b->currentBurstIndex < b->ioBursts.size())
-            {
-                burstB = b->ioBursts[b->currentBurstIndex].remaining;
-            }
+                uint32_t burstA = 0;
+                if (a->currentBurstIndex < a->ioBursts.size())
+                {
+                    burstA = a->ioBursts[a->currentBurstIndex].remaining;
+                }
+                uint32_t burstB = 0;
+                if (b->currentBurstIndex < b->ioBursts.size())
+                {
+                    burstB = b->ioBursts[b->currentBurstIndex].remaining;
+                }
 
-            if (burstA != burstB)
-            {
-                return burstA < burstB;
-            }
-            return a->id < b->id;
+                if (burstA != burstB)
+                {
+                    return burstA < burstB;
+                }
+                return a->id < b->id;
             });
     }
 
@@ -79,7 +79,7 @@ namespace core
                         m_currentThread->currentBurstIndex++;
                         if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
                         {
-                            auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
+                            const auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
                             if (!nextBurst.isCpuBurst)
                             {
                                 changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");
