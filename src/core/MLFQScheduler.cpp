@@ -172,11 +172,15 @@ namespace core
     bool MLFQScheduler::isFinished() const
     {
         if (m_currentThread != nullptr) return false;
-        for (const auto& lvl : m_levels)
-        {
-            if (!lvl.queue.empty()) return false;
-        }
-        return std::all_of(m_allThreads.begin(), m_allThreads.end(), [](const auto& th) {
+
+        bool hasActiveQueue = std::any_of(m_levels.begin(), m_levels.end(), [](const auto& lvl) 
+            {
+            return !lvl.queue.empty();
+            });
+        if (hasActiveQueue) return false;
+
+        return std::all_of(m_allThreads.begin(), m_allThreads.end(), [](const auto& th)
+            {
             return th->state == ThreadState::TERMINATED;
             });
     }
