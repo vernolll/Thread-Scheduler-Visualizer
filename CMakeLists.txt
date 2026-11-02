@@ -32,6 +32,18 @@ if(ENABLE_TSAN)
     endif()
 endif()
 
+option(ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
+
+if(ENABLE_COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(--coverage -O0 -g)
+        add_link_options(--coverage)
+        message(STATUS "Code coverage instrumentation is ENABLED.")
+    else()
+        message(WARNING "Code coverage is supported only with GCC and Clang.")
+    endif()
+endif()
+
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick Widgets Svg)
 
 add_library(core_lib STATIC
