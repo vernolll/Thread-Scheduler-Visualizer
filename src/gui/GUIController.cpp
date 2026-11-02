@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QFile>
 #include <QTextStream>
+#include <QCoreApplication>
+#include <QEvent>
 
 namespace gui
 {
@@ -67,6 +69,25 @@ namespace gui
         }
     }
 
+    void GUIController::setIsDarkMode(bool darkMode)
+    {
+        if (m_isDarkMode != darkMode)
+        {
+            m_isDarkMode = darkMode;
+            emit isDarkModeChanged();
+        }
+    }
+
+    void GUIController::setAnimationsEnabled(bool enabled)
+    {
+        if (m_animationsEnabled != enabled)
+        {
+            m_animationsEnabled = enabled;
+            emit animationsEnabledChanged();
+            emit simulationUpdated(); // ѕринудительное обновление UI при переключении анимаций
+        }
+    }
+
     void GUIController::startSimulation()
     {
         if (!m_isRunning)
@@ -92,19 +113,48 @@ namespace gui
 
     void GUIController::resetSimulation()
     {
+        // 1. ќстанавливаем таймер, чтобы не порождать новые stepSimulation.
         if (m_timer->isActive())
         {
             m_timer->stop();
         }
-        m_nextThreadId = 0;
-        m_lastLoadedThreads.clear();
 
+        // 2. —инхронный reset воркера. Ѕлокирующий вызов гарантирует, что
+        //    все ранее поставленные в очередь stepSimulation() уже
+        //    выполнились, и их сигналы (QueuedConnection) уже лежат
+        //    в очереди событий GUI-потока.
+        QMetaObject::invokeMethod(m_worker, "resetSimulation", Qt::BlockingQueuedConnection);
+
+        // 3. ”дал€ем из очереди GUI-потока все отложенные MetaCall-событи€,
+        //    адресованные этому объекту. Ёто Ђустаревшиеї сигналы от
+        //    уже отработавших step'ов Ч без этой очистки они бы
+        //    повторно наполнили модели сразу после их очистки ниже.
+        QCoreApplication::removePostedEvents(this, QEvent::MetaCall);
+
+        // 4. ќчищаем все модели.
         m_ganttChartModel.clear();
         m_readyQueueModel.clear();
         m_threadListModel.clear();
         m_benchmarkResultsModel.clear();
 
-        QMetaObject::invokeMethod(m_worker, "resetSimulation", Qt::QueuedConnection);
+        // 5. —брасываем внутреннее состо€ние.
+        m_nextThreadId = 0;
+        m_lastLoadedThreads.clear();
+
+        // 6. явно сбрасываем свойства симул€ции Ч не полагаемс€ на сигналы
+        //    воркера, потому что они были удалены на шаге 3.
+        if (m_currentTime != 0)
+        {
+            m_currentTime = 0;
+            emit currentTimeChanged();
+        }
+        if (m_isRunning)
+        {
+            m_isRunning = false;
+            emit isRunningChanged();
+        }
+
+        emit simulationUpdated();
     }
 
     void GUIController::addThread(int id, int burstTime, int priority)
@@ -191,14 +241,8 @@ namespace gui
     void GUIController::saveToJson(const QString& filePath)
     {
         QString path = filePath;
-        if (path.startsWith("file:///"))
-        {
-            path = path.mid(8);
-        }
-        else if (path.startsWith("file://"))
-        {
-            path = path.mid(7);
-        }
+        if (path.startsWith("file:///")) path = path.mid(8);
+        else if (path.startsWith("file://")) path = path.mid(7);
 
         QJsonObject rootObj;
         rootObj["scheduler"] = m_currentScheduler;
@@ -228,40 +272,22 @@ namespace gui
     void GUIController::loadFromJson(const QString& filePath)
     {
         QString path = filePath;
-        if (path.startsWith("file:///"))
-        {
-            path = path.mid(8);
-        }
-        else if (path.startsWith("file://"))
-        {
-            path = path.mid(7);
-        }
+        if (path.startsWith("file:///")) path = path.mid(8);
+        else if (path.startsWith("file://")) path = path.mid(7);
 
         QFile file(path);
-        if (!file.open(QIODevice::ReadOnly))
-        {
-            return;
-        }
+        if (!file.open(QIODevice::ReadOnly)) return;
 
         QByteArray data = file.readAll();
         file.close();
 
         QJsonDocument doc = QJsonDocument::fromJson(data);
-        if (doc.isNull() || !doc.isObject())
-        {
-            return;
-        }
+        if (doc.isNull() || !doc.isObject()) return;
 
         QJsonObject rootObj = doc.object();
 
-        if (rootObj.contains("scheduler"))
-        {
-            setCurrentScheduler(rootObj["scheduler"].toString());
-        }
-        if (rootObj.contains("timeQuantum"))
-        {
-            setTimeQuantum(rootObj["timeQuantum"].toInt());
-        }
+        if (rootObj.contains("scheduler")) setCurrentScheduler(rootObj["scheduler"].toString());
+        if (rootObj.contains("timeQuantum")) setTimeQuantum(rootObj["timeQuantum"].toInt());
 
         resetSimulation();
 
@@ -282,20 +308,11 @@ namespace gui
     void GUIController::exportCsv(const QString& filePath)
     {
         QString path = filePath;
-        if (path.startsWith("file:///"))
-        {
-            path = path.mid(8);
-        }
-        else if (path.startsWith("file://"))
-        {
-            path = path.mid(7);
-        }
+        if (path.startsWith("file:///")) path = path.mid(8);
+        else if (path.startsWith("file://")) path = path.mid(7);
 
         QFile file(path);
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            return;
-        }
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return;
 
         QTextStream out(&file);
         out << "Algorithm,TotalTicks,Throughput,ContextSwitches,JainsFairness,AvgWaiting,AvgTurnaround\n";
