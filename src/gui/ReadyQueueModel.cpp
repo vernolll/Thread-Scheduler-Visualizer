@@ -27,6 +27,8 @@ namespace gui
             return item.priority;
         case BurstTimeRole:
             return item.burstTime;
+        case LevelRole:
+            return item.level;
         case ColorRole:
             return item.color;
         default:
@@ -40,6 +42,7 @@ namespace gui
         roles[IdRole] = "threadId";
         roles[PriorityRole] = "priority";
         roles[BurstTimeRole] = "burstTime";
+        roles[LevelRole] = "queueLevel";
         roles[ColorRole] = "color";
         return roles;
     }
@@ -63,6 +66,7 @@ namespace gui
             data.id = map["id"].toInt();
             data.priority = map["priority"].toInt();
             data.burstTime = map["burstTime"].toInt();
+            data.level = map.contains("level") ? map["level"].toInt() : 0;
             data.color = map["color"].toString();
             newItems.push_back(data);
         }

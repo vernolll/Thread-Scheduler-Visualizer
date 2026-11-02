@@ -12,7 +12,8 @@ namespace gui
         int id{ 0 };
         int priority{ 0 };
         int burstTime{ 0 };
-        QString color{ "#ffffff" };
+        int level{ 0 };
+        QString color;
     };
 
     class ReadyQueueModel : public QAbstractListModel
@@ -24,6 +25,7 @@ namespace gui
             IdRole = Qt::UserRole + 1,
             PriorityRole,
             BurstTimeRole,
+            LevelRole,
             ColorRole
         };
 
