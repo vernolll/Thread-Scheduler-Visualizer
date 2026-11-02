@@ -195,10 +195,10 @@ ApplicationWindow {
                 }
             }
 
-            // Ready Queue Panel
+            // Ready Queue Panel with MLFQ Level Support
             Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 90
+                implicitHeight: 110
                 color: "#1e1e1e"
                 border.color: "#333333"
                 radius: 5
@@ -210,7 +210,7 @@ ApplicationWindow {
                     spacing: 5
 
                     Text {
-                        text: "Ready Queue (Waiting Threads)"
+                        text: "Ready Queue / MLFQ Priority Levels"
                         color: "#ffffff"
                         font.pixelSize: 14
                         font.bold: true
@@ -223,16 +223,16 @@ ApplicationWindow {
                         ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
                         Row {
-                            spacing: 8
-                            
+                            spacing: 12
+                
                             Repeater {
                                 model: guiController ? guiController.readyQueueModel : null
 
                                 Rectangle {
-                                    width: 90
-                                    height: 50
+                                    width: 100
+                                    height: 60
                                     color: "#2a2a2a"
-                                    border.color: model.color
+                                    border.color: model.color || "#0277bd"
                                     border.width: 2
                                     radius: 4
 
@@ -244,13 +244,13 @@ ApplicationWindow {
                                     }
 
                                     ToolTip.visible: hoverHandler.hovered
-                                    ToolTip.text: "Thread T" + model.threadId + "\nPriority: " + model.priority + "\nBurst: " + model.burstTime
+                                    ToolTip.text: "Thread T" + model.threadId + "\nQueue Level: " + model.queueLevel + "\nPriority: " + model.priority + "\nBurst: " + model.burstTime
 
                                     Column {
                                         anchors.centerIn: parent
                                         spacing: 2
                                         Text {
-                                            text: "Thread " + model.threadId
+                                            text: "T" + model.threadId + " (L" + model.queueLevel + ")"
                                             color: "#ffffff"
                                             font.bold: true
                                             font.pixelSize: 11
