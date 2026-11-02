@@ -9,7 +9,7 @@ namespace core
             uint32_t burstA = (a->currentBurstIndex < a->ioBursts.size()) ? a->ioBursts[a->currentBurstIndex].remaining : 0;
             uint32_t burstB = (b->currentBurstIndex < b->ioBursts.size()) ? b->ioBursts[b->currentBurstIndex].remaining : 0;
 
-            if (burstA != burstB) 
+            if (burstA != burstB)
             {
                 return burstA < burstB;
             }
@@ -92,7 +92,7 @@ namespace core
                         m_currentThread->currentBurstIndex++;
                         if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
                         {
-                            auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
+                            const auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
                             if (!nextBurst.isCpuBurst)
                             {
                                 changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");

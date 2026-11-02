@@ -2,6 +2,7 @@
 #include "core/SchedulerFactory.h"
 #include "core/SimulationEvent.h"
 #include <unordered_map>
+#include <algorithm>
 
 namespace core
 {
@@ -28,7 +29,7 @@ namespace core
             if (!th) continue;
             auto copy = std::make_shared<Thread>(th->id, th->burstTime, th->priority);
             copy->arrivalTime = th->arrivalTime;
-            copy->state = ThreadState::NEW; // Сбрасываем в начальное состояние
+            copy->state = ThreadState::NEW;
             copies.push_back(copy);
         }
         return copies;
@@ -96,15 +97,12 @@ namespace core
                 {
                     if (th->state == ThreadState::TERMINATED)
                     {
-                        bool alreadyTerminated = false;
-                        for (const auto& ev : events) {
-                            if (ev.threadId == th->id && ev.newState == ThreadState::TERMINATED) 
-                            {
-                                alreadyTerminated = true;
-                                break;
-                            }
-                        }
-                        if (!alreadyTerminated) {
+                        bool alreadyTerminated = std::any_of(events.begin(), events.end(), [th](const SimulationEvent& ev) {
+                            return ev.threadId == th->id && ev.newState == ThreadState::TERMINATED;
+                            });
+
+                        if (!alreadyTerminated) 
+                        {
                             events.push_back(SimulationEvent(ticks, th->id, ThreadState::RUNNING, ThreadState::TERMINATED, "Terminated"));
                         }
                     }
@@ -114,7 +112,6 @@ namespace core
             res.totalTicks = ticks;
             res.success = scheduler->isFinished();
 
-            // Пересчитываем метрики с собранными событиями
             res.metrics = MetricsCalculator::calculate(threadsCopy, events, ticks);
 
             results.push_back(res);

@@ -1,4 +1,5 @@
 #include "core/MLFQScheduler.h"
+#include <algorithm>
 
 namespace core
 {
@@ -110,7 +111,7 @@ namespace core
                         m_currentThread->currentBurstIndex++;
                         if (m_currentThread->currentBurstIndex < m_currentThread->ioBursts.size())
                         {
-                            auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
+                            const auto& nextBurst = m_currentThread->ioBursts[m_currentThread->currentBurstIndex];
                             if (!nextBurst.isCpuBurst)
                             {
                                 changeThreadState(m_currentThread, ThreadState::WAITING, "Entering I/O burst");
@@ -175,11 +176,9 @@ namespace core
         {
             if (!lvl.queue.empty()) return false;
         }
-        for (const auto& th : m_allThreads)
-        {
-            if (th->state != ThreadState::TERMINATED) return false;
-        }
-        return true;
+        return std::all_of(m_allThreads.begin(), m_allThreads.end(), [](const auto& th) {
+            return th->state == ThreadState::TERMINATED;
+            });
     }
 
     const std::vector<std::shared_ptr<Thread>>& MLFQScheduler::getAllThreads() const
