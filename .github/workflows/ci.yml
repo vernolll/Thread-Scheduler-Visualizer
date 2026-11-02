@@ -175,7 +175,7 @@ jobs:
         echo "Linux smoke test passed successfully!"
 
     - name: Upload Release Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: release-artifacts-${{ runner.os }}
         path: |
