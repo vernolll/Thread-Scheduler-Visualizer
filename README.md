@@ -196,6 +196,8 @@ thread-scheduler-visualizer/
 ├── tests/
 │   ├── benchmarks/
 │   │   └── benchmark_schedulers.cpp
+│   ├── core/
+│   │   └── test_simulation_invariants.cpp
 │   └── unit/
 │       ├── TestThreadFSM.cpp
 │       ├── test_benchmark_runner.cpp
