@@ -142,6 +142,11 @@ thread-scheduler-visualizer/
 │       └── release.yml               # Automated release workflow
 ├── docker/
 │   └── Dockerfile                    # Linux build environment container
+├── docs
+│   └── adr/
+│       ├── 0001-record-architecture-decisions.md
+│       ├── 0002-cplusplus-qt-stack.md
+│       └── 0003-core-gui-separation.md
 ├── include/
 │   ├── core/
 │   │   ├── BenchmarkRunner.h         # Benchmark runner interface for performance testing
