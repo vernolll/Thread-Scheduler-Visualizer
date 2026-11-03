@@ -116,9 +116,10 @@ Distributed under the MIT [License](LICENSE). See LICENSE for more information.
 
 ---
 
-## Documentation
+### Documentation
 
 * [Glossary](GLOSSARY.md) — Definitions for core OS scheduling terminology, scheduling policies, thread states, and architectural components.
+* [Architecture Documentation](docs/ARCHITECTURE.md) — Architectural diagrams (Class, Sequence, FSM) and system component interactions.
 
 ---
 
@@ -143,10 +144,11 @@ thread-scheduler-visualizer/
 ├── docker/
 │   └── Dockerfile                    # Linux build environment container
 ├── docs
-│   └── adr/
-│       ├── 0001-record-architecture-decisions.md
-│       ├── 0002-cplusplus-qt-stack.md
-│       └── 0003-core-gui-separation.md
+│   ├── adr/
+│   │   ├── 0001-record-architecture-decisions.md
+│   │   ├── 0002-cplusplus-qt-stack.md
+│   │   ├── 0003-core-gui-separation.md
+│   └── ARCHITECTURE.md               # System architecture & class diagrams
 ├── include/
 │   ├── core/
 │   │   ├── BenchmarkRunner.h         # Benchmark runner interface for performance testing
