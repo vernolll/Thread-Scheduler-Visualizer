@@ -1,16 +1,18 @@
 # Thread Scheduler Visualizer
 
-Thread Scheduler Visualizer is a cross-platform desktop application designed to model, simulate, and analyze operating system thread scheduling algorithms in real time. Built with C++17 and Qt/QML, it provides an intuitive graphical interface for examining CPU scheduling mechanics, context switches, and performance metrics.
+Thread Scheduler Visualizer is a cross-platform desktop application designed to model, simulate, and analyze operating system thread scheduling algorithms in real time. Built with C++17 and Qt/QML, it provides an intuitive graphical interface for examining CPU scheduling mechanics, context switches, thread states, and performance metrics.
 
 ---
 
 ## Key Features
 
-* Core Scheduling Algorithms: Out-of-the-box support for First-Come, First-Served (FCFS) and Round Robin (RR) scheduling policies.
-* Real-Time Simulation & Control: Interactive timeline control with play, pause, and timer adjustments.
-* Comprehensive Metrics: Live tracking of Turnaround Time, Waiting Time, Response Time, and CPU Utilization.
-* Cross-Platform GUI: Native desktop experience across Windows and Linux, featuring vectorized icons and clean window architecture without unwanted console popups.
-* Robust Containerized Environment: Docker support and GitHub Actions CI pipelines ensuring reproducible builds and automated testing.
+* **Core Scheduling Algorithms**: Out-of-the-box support for First-Come, First-Served (FCFS), Round Robin (RR), Shortest Job First (SJF), Shortest Remaining Time First (SRTF), Priority Scheduling (with aging), and Multi-Level Feedback Queue (MLFQ).
+* **Real-Time Simulation & Control**: Interactive timeline control with play, pause, step forward/backward, and timer adjustments.
+* **Dynamic Themes & Performance Toggles**: Full support for switching between Light and Dark themes, alongside a performance toggle to enable or disable heavy graphical animations for lower-end hardware.
+* **Comparative Analysis Dashboard**: Dedicated side-by-side metrics table and visual bar charts for evaluating throughput, turnaround time, waiting time, and Jain's fairness index across multiple algorithms.
+* **Comprehensive Metrics**: Live tracking of Turnaround Time, Waiting Time, Response Time, Context Switches, and CPU Utilization.
+* **Cross-Platform GUI**: Native desktop experience across Windows and Linux, featuring vectorized icons and clean window architecture without unwanted console popups.
+* **Robust Containerized Environment**: Docker support and GitHub Actions CI pipelines ensuring reproducible builds and automated testing.
 
 ---
 
@@ -101,10 +103,10 @@ docker build --no-cache -t thread-scheduler-visualizer -f docker/Dockerfile .
 ## Usage Guide
 
 1. Launch the application.
-2. Select the desired scheduling algorithm (FCFS or Round Robin) from the interface controls.
-3. Configure thread parameters (burst time, arrival time, etc.).
+2. Select the desired scheduling algorithm from the interface controls.
+3. Configure thread parameters (burst time, arrival time, priority, etc.).
 4. Use the playback controls to observe the real-time simulation timeline and context switches.
-5. Review the calculated performance metrics in the analytics panel.
+5. Review the calculated performance metrics in the analytics panel or open the comparative analysis dashboard.
 
 ---
 
@@ -116,13 +118,13 @@ Distributed under the MIT [License](LICENSE). See LICENSE for more information.
 
 ## Documentation
 
-* [Glossary](GLOSSARY.md) — Definitions for core OS scheduling terminology, thread states, and architectural components.
+* [Glossary](GLOSSARY.md) — Definitions for core OS scheduling terminology, scheduling policies, thread states, and architectural components.
 
 ---
 
 ## Preview Screenshots
 
-[![Main Window Screenshot](resources/preview/screenshot.png)](resources/preview/screenshot.png)
+[![Main Window Screenshot](resources/preview/demo.gif)](resources/preview/screenshot.png)
 
 ---
 
@@ -220,7 +222,7 @@ thread-scheduler-visualizer/
 │       ├── test_rr_scheduler.cpp
 │       ├── test_scheduler_factory.cpp
 │       └── test_sjf_srtf_scheduler.cpp
-├── CMakeLists.txt                    # Root CMake build configuration (with Qt6Svg)
+├── CMakeLists.txt                    # Root CMake build configuration
 ├── CMakePresets.json                 # Standard CMake build presets
 ├── GLOSSARY.md                       # Project domain glossary & technical definitions
 ├── LICENSE                           # License file
