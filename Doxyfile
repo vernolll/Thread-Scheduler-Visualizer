@@ -1,0 +1,42 @@
+Doxyfile for Thread Scheduler Visualizer
+
+PROJECT_NAME           = "Thread Scheduler Visualizer"
+PROJECT_BRIEF          = "Real-time OS thread scheduling simulation engine and analytics dashboard"
+PROJECT_NUMBER         = "1.0.0"
+OUTPUT_DIRECTORY       = docs/doxygen
+
+Input source settings
+
+INPUT                  = include/ 
+
+src/ 
+
+README.md 
+
+GLOSSARY.md
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h 
+
+*.hpp 
+
+*.cpp 
+
+*.md
+USE_MDFILE_AS_MAINPAGE = README.md
+
+Extraction settings
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+Output generation
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+Diagram and graph settings
+
+HAVE_DOT               = NO
+CLASS_DIAGRAMS         = YES

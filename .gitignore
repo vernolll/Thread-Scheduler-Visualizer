@@ -23,3 +23,7 @@ Thumbs.db
 *.so
 *.a
 *.lib
+
+docs/doxygen/
+html/
+latex/

@@ -229,6 +229,7 @@ thread-scheduler-visualizer/
 │       └── test_sjf_srtf_scheduler.cpp
 ├── CMakeLists.txt                    # Root CMake build configuration
 ├── CMakePresets.json                 # Standard CMake build presets
+├── Doxyfile                          # Doxygen configuration for API documentation
 ├── GLOSSARY.md                       # Project domain glossary & technical definitions
 ├── LICENSE                           # License file
 ├── resources.qrc                     # Qt resource bundle (icons mapping)
